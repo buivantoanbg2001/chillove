@@ -1,4 +1,11 @@
-import {StyleSheet, Text, View, Image} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TextInput,
+  TextInputProps,
+} from 'react-native';
 import React from 'react';
 import Colors from './Colors';
 
@@ -26,7 +33,18 @@ const CustomImage = props => {
   );
 };
 
-export {CustomText, CustomView, CustomImage};
+const CustomTextInput = ({...props}) => {
+  return (
+    <TextInput
+      style={[styles.defaultText, props.style]}
+      placeholderTextColor={props.placeholderTextColor || Colors.gray}
+      selectionColor={props.selectionColor || Colors.black_blur4}>
+      {props.children}
+    </TextInput>
+  );
+};
+
+export {CustomText, CustomView, CustomImage, CustomTextInput};
 
 const styles = StyleSheet.create({
   defaultText: {

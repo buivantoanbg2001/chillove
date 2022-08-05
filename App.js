@@ -1,17 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {Text, View, StatusBar, Easing} from 'react-native';
+import React, {useEffect} from 'react';
+import {Text, View, StatusBar} from 'react-native';
 import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
-import {
-  createStackNavigator,
-  TransitionSpecs,
-  TransitionPresets,
-} from '@react-navigation/stack';
-import MainScreen from './screens/MainScreen';
-import NewPostScreen from './screens/NewPostScreen';
+import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
+import MainScreen from './src/screens/MainScreen';
+import NewPostScreen from './src/screens/NewPostScreen';
 import {Provider as ReduxProvider} from 'react-redux';
-import store from './redux/store';
-import Colors from './utils/Colors';
+import store from './src/redux/store';
 
 const Stack = createStackNavigator();
 

@@ -7,8 +7,7 @@ let defaultState = {
   'linhngocbh2001@gmail.com': {
     email: 'linhngocbh2001@gmail.com',
     username: 'mandoo',
-    avatar_url:
-      'https://tse4.mm.bing.net/th?id=OIP.O5l0ZGIhrZsoTQzGj5SZ5AHaE7&w=690&c=7&pid=Api&p=0',
+    avatar_url: 'https://www.w3schools.com/w3css/img_lights.jpg',
   },
 };
 

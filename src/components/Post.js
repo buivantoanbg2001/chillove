@@ -197,7 +197,7 @@ const PostButton = ({post, openComment}) => {
           <Icon
             type={Icons.Ionicons}
             name="bookmarks-outline"
-            size={24}
+            size={28}
             color={Colors.black}
           />
         </TouchableOpacity>
