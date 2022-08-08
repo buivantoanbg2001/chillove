@@ -75,12 +75,14 @@ function MyTabBar({state, descriptors, navigation}) {
       Animated.spring(translateY, {
         toValue: tabBarStyle.translateY,
         useNativeDriver: true,
-        duration: 80,
+        bounciness: 10,
+        speed: 16,
       }),
       Animated.spring(opacity, {
         toValue: tabBarStyle.opacity,
         useNativeDriver: true,
-        duration: 80,
+        bounciness: 10,
+        speed: 16,
       }),
     ]).start();
   }, [tabBarStyle]);
@@ -184,7 +186,6 @@ const TabIcon = ({
       Animated.spring(textOpacity, {
         toValue: opacity,
         useNativeDriver: true,
-        duration: 80,
       }),
     ]).start();
   };
