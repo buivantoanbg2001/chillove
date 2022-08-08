@@ -1,44 +1,42 @@
-import React, {useEffect, useRef, useState, useMemo, useCallback} from 'react';
+import React, {
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+  createContext,
+} from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   SafeAreaView,
   Image,
-  Dimensions,
   TouchableOpacity,
-  Easing,
 } from 'react-native';
 import {useBackHandler} from '../hooks/useBackHandler.hook';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
+import {FlatList} from 'react-native-gesture-handler';
 import posts from '../data/posts';
 import Colors from '../utils/Colors';
 import Post from '../components/Post';
 import Icon, {Icons} from '../utils/Icons';
 import * as Animatable from 'react-native-animatable';
-import Animated from 'react-native-reanimated';
-import BottomSheet, {
-  BottomSheetFlatList,
-  BottomSheetFooter,
-  BottomSheetFooterProps,
-} from '@gorhom/bottom-sheet';
-import Button from '../utils/Button';
+import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {CustomText} from '../utils/CustomComponents';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import Comment from '../components/Comment';
 import CommentBox from '../components/CommentBox';
 
-const {width, height} = Dimensions.get('window');
 const MARGIN = 24;
 const PADDING = 16;
+
+export const BottomSheetContext = createContext();
 
 const HomeTab = ({navigation}) => {
   const [postCurrent, setPostCurrent] = useState();
   const [indexSheet, setIndexSheet] = useState(-1);
   const flatListRef = useRef(null);
   const sheetRef = useRef(null);
-
   const dispatch = useDispatch();
+  const snapPoints = useMemo(() => ['66%', '100%'], []);
 
   useBackHandler(() => {
     if (indexSheet >= 0) {
@@ -67,7 +65,6 @@ const HomeTab = ({navigation}) => {
   };
 
   const openComment = post => {
-    console.log('Open');
     setPostCurrent(post);
     sheetRef.current.snapToIndex(0);
     setTabBarStyle(0, 150);
@@ -80,8 +77,6 @@ const HomeTab = ({navigation}) => {
   const handleSheetChanges = useCallback(index => {
     setIndexSheet(index);
   }, []);
-
-  const snapPoints = useMemo(() => ['66%', '100%'], []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -109,50 +104,46 @@ const HomeTab = ({navigation}) => {
         showsHorizontalScrollIndicator={false}
         nestedScrollEnabled
       />
-      <BottomSheet
-        ref={sheetRef}
-        index={-1}
-        enablePanDownToClose
-        snapPoints={snapPoints}
-        footerComponent={CommentBox}
-        onChange={handleSheetChanges}
-        onClose={closeComment}>
-        {postCurrent && (
-          <View style={styles.commentContainer}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingVertical: MARGIN / 2,
-                paddingHorizontal: MARGIN,
-              }}>
-              <CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>
-                Comments
-              </CustomText>
-              <TouchableOpacity>
-                <Icon
-                  type={Icons.Ionicons}
-                  name="ellipsis-horizontal"
-                  size={30}
-                  color={Colors.black}
-                />
-              </TouchableOpacity>
+      <BottomSheetContext.Provider value={{indexSheet: indexSheet}}>
+        <BottomSheet
+          ref={sheetRef}
+          index={-1}
+          enablePanDownToClose
+          snapPoints={snapPoints}
+          footerComponent={CommentBox}
+          onChange={handleSheetChanges}
+          onClose={closeComment}>
+          {postCurrent && (
+            <View style={styles.commentContainer}>
+              <View style={styles.commentHeader}>
+                <CustomText
+                  style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>
+                  Comments
+                </CustomText>
+                <TouchableOpacity>
+                  <Icon
+                    type={Icons.Ionicons}
+                    name="ellipsis-horizontal"
+                    size={30}
+                    color={Colors.black}
+                  />
+                </TouchableOpacity>
+              </View>
+              <BottomSheetFlatList
+                data={postCurrent.comments.sort(
+                  (c1, c2) => c1.commented_at - c2.commented_at,
+                )}
+                renderItem={({item}) => <Comment comment={item} />}
+                keyExtractor={(_, index) => index}
+                initialNumToRender={24}
+                showsHorizontalScrollIndicator={false}
+                nestedScrollEnabled
+                contentContainerStyle={{paddingBottom: 120}}
+              />
             </View>
-            <BottomSheetFlatList
-              data={postCurrent.comments.sort(
-                (c1, c2) => c1.commented_at - c2.commented_at,
-              )}
-              renderItem={({item}) => <Comment comment={item} />}
-              keyExtractor={(_, index) => index}
-              initialNumToRender={24}
-              showsHorizontalScrollIndicator={false}
-              nestedScrollEnabled
-              contentContainerStyle={{paddingBottom: 120}}
-            />
-          </View>
-        )}
-      </BottomSheet>
+          )}
+        </BottomSheet>
+      </BottomSheetContext.Provider>
     </SafeAreaView>
   );
 };
@@ -223,6 +214,13 @@ const styles = StyleSheet.create({
   commentContainer: {
     backgroundColor: Colors.white,
     height: '100%',
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: MARGIN / 2,
+    paddingHorizontal: MARGIN,
   },
   horizontalIndicator: {
     width: 36,

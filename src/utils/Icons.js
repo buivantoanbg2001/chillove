@@ -35,7 +35,11 @@ const Icons = {
   Zocial: Zocial,
 };
 
-const Icon = props => <props.type {...props} />;
+const Icon = props => {
+  const IconType = props.type;
+
+  return <IconType {...props} />;
+};
 
 export {Icons};
 export default Icon;

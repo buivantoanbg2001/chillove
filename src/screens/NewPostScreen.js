@@ -1,7 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   SafeAreaView,
   ScrollView,
@@ -13,54 +12,34 @@ import {
   Dimensions,
 } from 'react-native';
 import Colors from '../utils/Colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
-import Button from '../utils/Button';
-import posts from '../data/posts';
-import {CustomText, CustomView} from '../utils/CustomComponents';
+import {Button, CustomText} from '../utils/CustomComponents';
 import Icon, {Icons} from '../utils/Icons';
 import * as Animatable from 'react-native-animatable';
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const PADDING = 16;
 const MARGIN = 24;
 
-const colorSet = [
-  {
-    background: Colors.grape_fruit_bg,
-    text: Colors.grape_fruit,
-    blur: Colors.grape_fruit_blur,
-  },
-  {
-    background: Colors.tangerine_bg,
-    text: Colors.tangerine,
-    blur: Colors.tangerine_blur,
-  },
-  {
-    background: Colors.spinach_bg,
-    text: Colors.spinach,
-    blur: Colors.spinach_blur,
-  },
-];
-
 const NewPostScreen = ({navigation}) => {
+  const [caption, setCaption] = useState('');
+  const [postImage, setPostImage] = useState([]);
   const [privatePost, setPrivatePost] = useState(false);
-  const [random, setRandom] = useState([0, 1, 2]);
-
-  useEffect(() => {
-    const tmp = [];
-    for (var i = 0; i < 3; i++) {
-      tmp.push(Math.floor(Math.random() * 3));
-    }
-    setRandom(tmp);
-  }, []);
 
   const addNewPost = () => {
-    navigation.goBack();
+    /**
+     * @todo Add post to Firebase
+     * @success navigation.goBack();
+     * @error showToast("Post failed")
+     */
   };
 
   const goBack = () => {
-    navigation.goBack();
+    /**
+     * @todo Warning the current post will be not saved
+     * @success navigation.goBack();
+     * @error Do not do anything
+     */
   };
 
   const openGallery = () => {
@@ -70,14 +49,14 @@ const NewPostScreen = ({navigation}) => {
     })
       .then(image => {
         if (image != null) {
-          console.log(image);
+          setPostImage(image);
         }
       })
       .catch(e => {
+        console.log('Error code', e.code);
+
         if (e.code == 'E_PICKER_CANCELLED') {
-          console.log(
-            'Sorry, there was an issue attempting to get the image/video you selected. Please try again',
-          );
+          setPostImage([]);
         }
       });
   };
@@ -99,32 +78,15 @@ const NewPostScreen = ({navigation}) => {
       />
       <Header addNewPost={addNewPost} goBack={goBack} />
       <ScrollView>
-        {/* <Button solid title={'Open'} onPress={openGallery} /> */}
-        <View style={styles.containerElement}>
-          <Image
-            source={{uri: 'https://i.imgur.com/MeKBRsb.png'}}
-            style={[StyleSheet.absoluteFillObject, {opacity: 0.3}]}
-            blurRadius={23}
-          />
-          <View
-            style={{
-              marginHorizontal: MARGIN - PADDING,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <Ionicons
+        <View style={styles.elementContainer}>
+          <View style={styles.elementHeader}>
+            <Icon
+              type={Icons.Ionicons}
               name="document-text-outline"
               size={14}
               color={Colors.black}
             />
-            <CustomText
-              style={{
-                color: Colors.black,
-                fontFamily: 'Montserrat-600',
-                marginLeft: 8,
-              }}>
-              Caption
-            </CustomText>
+            <CustomText style={styles.elementTitle}>Caption</CustomText>
           </View>
           <TextInput
             style={styles.caption}
@@ -133,13 +95,14 @@ const NewPostScreen = ({navigation}) => {
             placeholder=" ... I❤U ... "
             multiline
             autoFocus={true}
-            // onChangeText={}
+            value={caption}
+            onChangeText={text => setCaption(text)}
           />
         </View>
 
         <View
           style={[
-            styles.containerElement,
+            styles.elementContainer,
             {
               width: width - MARGIN,
               marginRight: 0,
@@ -148,58 +111,32 @@ const NewPostScreen = ({navigation}) => {
               borderBottomRightRadius: 0,
             },
           ]}>
-          <Image
-            source={{uri: 'https://i.imgur.com/MeKBRsb.png'}}
-            style={[StyleSheet.absoluteFillObject, {opacity: 0.3}]}
-            blurRadius={23}
-          />
-          <View
-            style={{
-              marginHorizontal: MARGIN - PADDING,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <Ionicons name="camera-outline" size={14} color={Colors.black} />
-            <CustomText
-              style={{
-                color: Colors.black,
-                fontFamily: 'Montserrat-600',
-                marginLeft: 8,
-              }}>
+          <View style={styles.elementHeader}>
+            <Icon
+              type={Icons.Ionicons}
+              name="camera-outline"
+              size={14}
+              color={Colors.black}
+            />
+            <CustomText style={styles.elementTitle}>
               Add Photos/Videos
             </CustomText>
           </View>
 
           <View style={styles.paginationNumber}>
-            <CustomText
-              style={{
-                fontSize: 12,
-                color: Colors.grape_fruit,
-                fontFamily: 'Montserrat-700',
-              }}>
-              {Math.max(7, 0)}
+            <CustomText style={styles.imagePostCount}>
+              {postImage.length}
               <CustomText style={{fontSize: 8}}> / {23}</CustomText>
             </CustomText>
           </View>
 
           <View
-            style={{
-              marginTop: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
+            style={{marginTop: 16, flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity
-              style={{
-                width: 84,
-                height: 84,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: Colors.white_blur7,
-                borderRadius: 28,
-                marginRight: 8,
-              }}
+              style={styles.openGalleryButton}
               onPress={openGallery}>
-              <Ionicons
+              <Icon
+                type={Icons.Ionicons}
                 name="camera-outline"
                 size={36}
                 color={Colors.grape_fruit}
@@ -211,16 +148,9 @@ const NewPostScreen = ({navigation}) => {
                 paddingLeft: PADDING - 8 - 4,
               }}
               horizontal
-              data={posts[0].image_urls}
+              data={postImage}
               renderItem={({item}) => (
-                <Image
-                  source={{uri: item}}
-                  style={{
-                    width: 84,
-                    height: 84,
-                    marginHorizontal: 4,
-                  }}
-                />
+                <Image source={{uri: item.path}} style={styles.postImage} />
               )}
               keyExtractor={(_, index) => index}
               initialNumToRender={24}
@@ -229,32 +159,15 @@ const NewPostScreen = ({navigation}) => {
           </View>
         </View>
 
-        <View style={[styles.containerElement, {width: width - MARGIN * 4}]}>
-          <Image
-            source={{uri: 'https://i.imgur.com/MeKBRsb.png'}}
-            style={[StyleSheet.absoluteFillObject, {opacity: 0.3}]}
-            blurRadius={23}
-          />
-
-          <View
-            style={{
-              marginHorizontal: MARGIN - PADDING,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <Ionicons
+        <View style={[styles.elementContainer, {width: width - MARGIN * 4}]}>
+          <View style={styles.elementHeader}>
+            <Icon
+              type={Icons.Ionicons}
               name="lock-closed-outline"
               size={14}
               color={Colors.black}
             />
-            <CustomText
-              style={{
-                color: Colors.black,
-                fontFamily: 'Montserrat-600',
-                marginLeft: 8,
-              }}>
-              Private Post
-            </CustomText>
+            <CustomText style={styles.elementTitle}>Private Post</CustomText>
           </View>
 
           <Switch
@@ -273,11 +186,8 @@ const NewPostScreen = ({navigation}) => {
         <Button
           solid
           title="POST"
-          style={{
-            marginTop: 40,
-            marginBottom: 32,
-            marginHorizontal: MARGIN * 3,
-          }}
+          style={styles.postButton}
+          onPress={addNewPost}
         />
       </ScrollView>
     </SafeAreaView>
@@ -314,13 +224,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  containerElement: {
+  elementContainer: {
     padding: PADDING,
     width: width - MARGIN * 2,
     marginHorizontal: MARGIN,
     marginVertical: PADDING,
     borderRadius: 32,
     overflow: 'hidden',
+    backgroundColor: Colors.white_blur5,
+  },
+  elementHeader: {
+    marginHorizontal: MARGIN - PADDING,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  elementTitle: {
+    fontFamily: 'Montserrat-600',
+    marginLeft: 8,
   },
   header: {
     justifyContent: 'space-between',
@@ -341,6 +261,20 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     marginTop: MARGIN - PADDING,
   },
+  openGalleryButton: {
+    width: 84,
+    height: 84,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.white_blur7,
+    borderRadius: 28,
+    marginRight: 8,
+  },
+  imagePostCount: {
+    fontSize: 12,
+    color: Colors.grape_fruit,
+    fontFamily: 'Montserrat-700',
+  },
   paginationNumber: {
     position: 'absolute',
     top: 17,
@@ -350,10 +284,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.white_blur7,
   },
+  postImage: {
+    width: 84,
+    height: 84,
+    marginHorizontal: 4,
+  },
   switch: {
     position: 'absolute',
     top: 12,
     right: PADDING,
+  },
+  postButton: {
+    marginTop: 40,
+    marginBottom: 32,
+    marginHorizontal: MARGIN * 3,
   },
   headerText: {
     color: Colors.grape_fruit,

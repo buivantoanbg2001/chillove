@@ -1,26 +1,21 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useRef} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   Image,
   Dimensions,
-  FlatList,
   TouchableOpacity,
-  ImageBackground,
   Animated,
 } from 'react-native';
 import Colors from '../utils/Colors';
-import Button from '../utils/Button';
 import {useSelector} from 'react-redux';
-import {CustomText, CustomView, CustomImage} from '../utils/CustomComponents';
-import LinearGradient from 'react-native-linear-gradient';
+import {CustomText} from '../utils/CustomComponents';
 import PaginationDot from 'react-native-animated-pagination-dot';
-import * as Animatable from 'react-native-animatable';
 import Icon, {Icons} from '../utils/Icons';
 import FastImage from 'react-native-fast-image';
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const PADDING = 16;
 const MARGIN = 24;
 

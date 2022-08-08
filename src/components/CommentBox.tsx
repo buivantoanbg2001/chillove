@@ -1,16 +1,31 @@
+import React, {useEffect, useState, useContext} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import React from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import BottomSheet, {
-  BottomSheetFooter,
-  BottomSheetFooterProps,
-} from '@gorhom/bottom-sheet';
-import {CustomText, CustomTextInput} from '../utils/CustomComponents';
+import {BottomSheetFooter, BottomSheetFooterProps} from '@gorhom/bottom-sheet';
+import {CustomTextInput} from '../utils/CustomComponents';
 import Icon, {Icons} from '../utils/Icons';
 import Colors from '../utils/Colors';
+import {BottomSheetContext} from '../tab/HomeTab';
 
-const CommentBox = ({animatedFooterPosition}) => {
+const CommentBox = ({animatedFooterPosition}: BottomSheetFooterProps) => {
   const {bottom: bottomSafeArea} = useSafeAreaInsets();
+  const [comment, setComment] = useState('');
+  const {indexSheet} = useContext(BottomSheetContext);
+
+  // Set comment = '' when close CommentBox
+  useEffect(() => {
+    if (indexSheet == -1) {
+      setComment('');
+    }
+  }, [indexSheet]);
+
+  const sendComment = () => {
+    /**
+     * @todo Add comment to Firebase
+     * @success setComment("")
+     * @error showToast("Comment failed")
+     */
+  };
 
   return (
     <BottomSheetFooter
@@ -20,8 +35,10 @@ const CommentBox = ({animatedFooterPosition}) => {
       <CustomTextInput
         style={styles.textInput}
         placeholder="Leave a comment..."
+        value={comment}
+        onChangeText={text => setComment(text)}
       />
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={sendComment}>
         <Icon
           type={Icons.Feather}
           name="arrow-up"
