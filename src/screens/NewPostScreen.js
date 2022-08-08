@@ -47,9 +47,9 @@ const NewPostScreen = ({navigation}) => {
       mediaType: 'any',
       multiple: true,
     })
-      .then(image => {
-        if (image != null) {
-          setPostImage(image);
+      .then(images => {
+        if (images != null) {
+          setPostImage(images);
         }
       })
       .catch(e => {
@@ -78,7 +78,11 @@ const NewPostScreen = ({navigation}) => {
       />
       <Header addNewPost={addNewPost} goBack={goBack} />
       <ScrollView>
-        <View style={styles.elementContainer}>
+        <Animatable.View
+          style={styles.elementContainer}
+          animation={'fadeInUp'}
+          duration={500}
+          useNativeDriver={true}>
           <View style={styles.elementHeader}>
             <Icon
               type={Icons.Ionicons}
@@ -94,13 +98,12 @@ const NewPostScreen = ({navigation}) => {
             placeholderTextColor={Colors.black_blur3}
             placeholder=" ... I❤U ... "
             multiline
-            autoFocus={true}
             value={caption}
             onChangeText={text => setCaption(text)}
           />
-        </View>
+        </Animatable.View>
 
-        <View
+        <Animatable.View
           style={[
             styles.elementContainer,
             {
@@ -110,7 +113,11 @@ const NewPostScreen = ({navigation}) => {
               borderTopRightRadius: 0,
               borderBottomRightRadius: 0,
             },
-          ]}>
+          ]}
+          animation={'fadeInUp'}
+          duration={500}
+          delay={150}
+          useNativeDriver={true}>
           <View style={styles.elementHeader}>
             <Icon
               type={Icons.Ionicons}
@@ -157,9 +164,14 @@ const NewPostScreen = ({navigation}) => {
               showsHorizontalScrollIndicator={false}
             />
           </View>
-        </View>
+        </Animatable.View>
 
-        <View style={[styles.elementContainer, {width: width - MARGIN * 4}]}>
+        <Animatable.View
+          style={[styles.elementContainer, {width: width - MARGIN * 4}]}
+          animation={'fadeInUp'}
+          duration={500}
+          delay={300}
+          useNativeDriver={true}>
           <View style={styles.elementHeader}>
             <Icon
               type={Icons.Ionicons}
@@ -181,14 +193,20 @@ const NewPostScreen = ({navigation}) => {
             onChange={() => setPrivatePost(!privatePost)}
             value={privatePost}
           />
-        </View>
+        </Animatable.View>
 
-        <Button
-          solid
-          title="POST"
-          style={styles.postButton}
-          onPress={addNewPost}
-        />
+        <Animatable.View
+          animation={'fadeIn'}
+          duration={500}
+          delay={600}
+          useNativeDriver={true}>
+          <Button
+            solid
+            title="POST"
+            style={styles.postButton}
+            onPress={addNewPost}
+          />
+        </Animatable.View>
       </ScrollView>
     </SafeAreaView>
   );
