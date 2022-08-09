@@ -1,25 +1,25 @@
-import React, {useState, useRef} from 'react';
-import {StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, Animated} from 'react-native';
-import Colors from '../utils/Colors';
-import {useSelector} from 'react-redux';
-import {CustomText} from '../utils/CustomComponents';
-import PaginationDot from 'react-native-animated-pagination-dot';
-import Icon, {Icons} from '../utils/Icons';
-import FastImage from 'react-native-fast-image';
+import React, {useState, useRef} from 'react'
+import {StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, Animated} from 'react-native'
+import Colors from '../utils/Colors'
+import {useSelector} from 'react-redux'
+import {CustomText} from '../utils/CustomComponents'
+import PaginationDot from 'react-native-animated-pagination-dot'
+import Icon, {Icons} from '../utils/Icons'
+import FastImage from 'react-native-fast-image'
 
-const {width} = Dimensions.get('window');
-const PADDING = 16;
-const MARGIN = 24;
+const {width} = Dimensions.get('window')
+const PADDING = 16
+const MARGIN = 24
 
 const Post = ({post, openComment, openMore}) => {
-	const [seeMore, setSeeMore] = useState(false);
+	const [seeMore, setSeeMore] = useState(false)
 
-	const users = useSelector(state => state.usersReducer);
-	const user = users[post.owner_email];
+	const users = useSelector(state => state.usersReducer)
+	const user = users[post.owner_email]
 
 	const handleSeeMore = () => {
-		setSeeMore(!seeMore);
-	};
+		setSeeMore(!seeMore)
+	}
 
 	return (
 		<AestheticMode
@@ -30,8 +30,8 @@ const Post = ({post, openComment, openMore}) => {
 			openComment={() => openComment(post)}
 			openMore={() => openMore(post)}
 		/>
-	);
-};
+	)
+}
 
 const AestheticMode = ({post, user, seeMore, handleSeeMore, openComment, openMore}) => {
 	return (
@@ -47,20 +47,20 @@ const AestheticMode = ({post, user, seeMore, handleSeeMore, openComment, openMor
 			<Caption post={post} seeMore={seeMore} handleSeeMore={handleSeeMore} />
 			<Hashtag post={post} />
 		</View>
-	);
-};
+	)
+}
 
 const PostImages = ({post}) => {
-	const [currentImage, setCurrentImage] = useState(0);
-	const scrollX = useRef(new Animated.Value(0)).current;
+	const [currentImage, setCurrentImage] = useState(0)
+	const scrollX = useRef(new Animated.Value(0)).current
 
 	let onScroll = e => {
 		let pageNumber = Math.min(
 			Math.max(Math.floor(e.nativeEvent.contentOffset.x / (width - 24 * 2) + 0.5), 0),
 			post.image_urls.length,
-		);
-		setCurrentImage(pageNumber);
-	};
+		)
+		setCurrentImage(pageNumber)
+	}
 
 	return (
 		<View>
@@ -77,7 +77,7 @@ const PostImages = ({post}) => {
 							(index + 1) * (width - MARGIN * 2),
 						],
 						outputRange: [0, 1, 1, 1, 0],
-					});
+					})
 
 					const scale = scrollX.interpolate({
 						inputRange: [
@@ -86,7 +86,7 @@ const PostImages = ({post}) => {
 							(index + 1) * (width - MARGIN * 2),
 						],
 						outputRange: [0.75, 1, 0.75],
-					});
+					})
 
 					return (
 						<Animated.View
@@ -96,7 +96,7 @@ const PostImages = ({post}) => {
 								style={StyleSheet.absoluteFillObject}
 							/>
 						</Animated.View>
-					);
+					)
 				}}
 				keyExtractor={(_, index) => index}
 				pagingEnabled
@@ -127,8 +127,8 @@ const PostImages = ({post}) => {
 				</CustomText>
 			</View>
 		</View>
-	);
-};
+	)
+}
 
 const PostInfo = ({post, user}) => {
 	return (
@@ -148,8 +148,8 @@ const PostInfo = ({post, user}) => {
 				<CustomText style={{color: Colors.gray}}>• {post.created_at}</CustomText>
 			</View>
 		</View>
-	);
-};
+	)
+}
 
 const PostButton = ({post, openComment, openMore}) => {
 	return (
@@ -179,8 +179,8 @@ const PostButton = ({post, openComment, openMore}) => {
 				</TouchableOpacity>
 			</View>
 		</View>
-	);
-};
+	)
+}
 
 const Caption = ({post, seeMore, handleSeeMore}) => {
 	return (
@@ -195,8 +195,8 @@ const Caption = ({post, seeMore, handleSeeMore}) => {
 				)}
 			</CustomText>
 		</TouchableOpacity>
-	);
-};
+	)
+}
 
 const Hashtag = ({post}) => {
 	return (
@@ -207,10 +207,10 @@ const Hashtag = ({post}) => {
 				</TouchableOpacity>
 			))}
 		</View>
-	);
-};
+	)
+}
 
-export default Post;
+export default Post
 
 const styles = StyleSheet.create({
 	container: {
@@ -275,4 +275,4 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 	},
-});
+})

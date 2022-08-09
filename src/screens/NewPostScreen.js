@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 import {
 	StyleSheet,
 	View,
@@ -10,21 +10,21 @@ import {
 	FlatList,
 	Switch,
 	Dimensions,
-} from 'react-native';
-import Colors from '../utils/Colors';
-import ImagePicker from 'react-native-image-crop-picker';
-import {Button, CustomText} from '../utils/CustomComponents';
-import Icon, {Icons} from '../utils/Icons';
-import * as Animatable from 'react-native-animatable';
+} from 'react-native'
+import Colors from '../utils/Colors'
+import ImagePicker from 'react-native-image-crop-picker'
+import {Button, CustomText} from '../utils/CustomComponents'
+import Icon, {Icons} from '../utils/Icons'
+import * as Animatable from 'react-native-animatable'
 
-const {width} = Dimensions.get('window');
-const PADDING = 16;
-const MARGIN = 24;
+const {width} = Dimensions.get('window')
+const PADDING = 16
+const MARGIN = 24
 
 const NewPostScreen = ({navigation}) => {
-	const [caption, setCaption] = useState('');
-	const [postImage, setPostImage] = useState([]);
-	const [privatePost, setPrivatePost] = useState(false);
+	const [caption, setCaption] = useState('')
+	const [postImage, setPostImage] = useState([])
+	const [privatePost, setPrivatePost] = useState(false)
 
 	const addNewPost = () => {
 		/**
@@ -32,7 +32,7 @@ const NewPostScreen = ({navigation}) => {
 		 * @success navigation.goBack();
 		 * @error showToast("Post failed")
 		 */
-	};
+	}
 
 	const goBack = () => {
 		/**
@@ -40,7 +40,7 @@ const NewPostScreen = ({navigation}) => {
 		 * @success navigation.goBack();
 		 * @error Do not do anything
 		 */
-	};
+	}
 
 	const openGallery = () => {
 		ImagePicker.openPicker({
@@ -49,17 +49,17 @@ const NewPostScreen = ({navigation}) => {
 		})
 			.then(images => {
 				if (images != null) {
-					setPostImage(images);
+					setPostImage(images)
 				}
 			})
 			.catch(e => {
-				console.log('Error code', e.code);
+				console.log('Error code', e.code)
 
 				if (e.code == 'E_PICKER_CANCELLED') {
-					setPostImage([]);
+					setPostImage([])
 				}
-			});
-	};
+			})
+	}
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -183,8 +183,8 @@ const NewPostScreen = ({navigation}) => {
 				</Animatable.View>
 			</ScrollView>
 		</SafeAreaView>
-	);
-};
+	)
+}
 
 const Header = ({addNewPost, goBack}) => {
 	return (
@@ -197,10 +197,10 @@ const Header = ({addNewPost, goBack}) => {
 				<Icon type={Icons.Octicons} name="check" size={34} color={Colors.black} />
 			</TouchableOpacity>
 		</View>
-	);
-};
+	)
+}
 
-export default NewPostScreen;
+export default NewPostScreen
 
 const styles = StyleSheet.create({
 	container: {
@@ -287,4 +287,4 @@ const styles = StyleSheet.create({
 		fontFamily: 'Montserrat-600',
 		paddingBottom: 5,
 	},
-});
+})

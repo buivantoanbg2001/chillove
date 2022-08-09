@@ -1,16 +1,16 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, Dimensions, Animated} from 'react-native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeTab from '../tab/HomeTab';
-import SettingsTab from '../tab/SettingsTab';
-import LoveTab from '../tab/LoveTab';
-import Icon, {Icons} from '../utils/Icons';
-import Colors from '../utils/Colors';
-import * as Animatable from 'react-native-animatable';
-import LinearGradient from 'react-native-linear-gradient';
-import {useSelector} from 'react-redux';
+import React, {useState, useEffect, useRef} from 'react'
+import {StyleSheet, Text, View, TouchableOpacity, Dimensions, Animated} from 'react-native'
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
+import HomeTab from '../tab/HomeTab'
+import SettingsTab from '../tab/SettingsTab'
+import LoveTab from '../tab/LoveTab'
+import Icon, {Icons} from '../utils/Icons'
+import Colors from '../utils/Colors'
+import * as Animatable from 'react-native-animatable'
+import LinearGradient from 'react-native-linear-gradient'
+import {useSelector} from 'react-redux'
 
-const {width, height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window')
 
 Animatable.initializeRegistryWithDefinitions({
 	rotate: {
@@ -20,7 +20,7 @@ Animatable.initializeRegistryWithDefinitions({
 		0.75: {transform: [{scale: (2 * height) / width}, {rotate: '270deg'}]},
 		1: {transform: [{scale: 1}, {rotate: '360deg'}]},
 	},
-});
+})
 
 const TabArr = [
 	{
@@ -41,26 +41,25 @@ const TabArr = [
 		icon_name: 'settings',
 		type: Icons.Feather,
 	},
-];
+]
 
-const Tab = createBottomTabNavigator();
-const TAB_ICON_SIZE = 30;
-const MARGIN = width * 0.2;
-const TAB_WIDTH = (width - MARGIN * 2) / TabArr.length;
-const PADDING = (TAB_WIDTH - TAB_ICON_SIZE) / 2;
+const Tab = createBottomTabNavigator()
+const TAB_ICON_SIZE = 30
+const MARGIN = width * 0.2
+const TAB_WIDTH = (width - MARGIN * 2) / TabArr.length
+const PADDING = (TAB_WIDTH - TAB_ICON_SIZE) / 2
 
 function MyTabBar({state, descriptors, navigation}) {
-	const slideTab = useRef(null);
-
-	const tabBarStyle = useSelector(state => state.tabBarStyleReducer);
-	const [opacity] = useState(new Animated.Value(tabBarStyle.opacity));
-	const [translateY] = useState(new Animated.Value(tabBarStyle.translateY));
+	const slideTab = useRef(null)
+	const tabBarStyle = useSelector(state => state.tabBarStyleReducer)
+	const [opacity] = useState(new Animated.Value(tabBarStyle.opacity))
+	const [translateY] = useState(new Animated.Value(tabBarStyle.translateY))
 
 	useEffect(() => {
 		slideTab.current.transitionTo({
 			transform: [{translateX: TAB_WIDTH * state.index}],
-		});
-	}, [state.index]);
+		})
+	}, [state.index])
 
 	useEffect(() => {
 		Animated.parallel([
@@ -76,8 +75,8 @@ function MyTabBar({state, descriptors, navigation}) {
 				bounciness: 10,
 				speed: 16,
 			}),
-		]).start();
-	}, [tabBarStyle]);
+		]).start()
+	}, [tabBarStyle])
 
 	return (
 		<Animated.View
@@ -91,39 +90,39 @@ function MyTabBar({state, descriptors, navigation}) {
 				/>
 			</Animatable.View>
 			{state.routes.map((route, index) => {
-				const {options} = descriptors[route.key];
+				const {options} = descriptors[route.key]
 				const label =
 					options.tabBarLabel !== undefined
 						? options.tabBarLabel
 						: options.title !== undefined
 						? options.title
-						: route.name;
+						: route.name
 
-				const tabBarIcon = options.tabBarIcon;
-				const activeColor = options.tabBarActiveTintColor;
-				const inActiveColor = options.tabBarInactiveTintColor;
+				const tabBarIcon = options.tabBarIcon
+				const activeColor = options.tabBarActiveTintColor
+				const inActiveColor = options.tabBarInactiveTintColor
 
-				const isFocused = state.index === index;
+				const isFocused = state.index === index
 
 				const onPress = () => {
 					const event = navigation.emit({
 						type: 'tabPress',
 						target: route.key,
 						canPreventDefault: true,
-					});
+					})
 
 					if (!isFocused && !event.defaultPrevented) {
 						// The `merge: true` option makes sure that the params inside the tab screen are preserved
-						navigation.navigate({name: route.name, merge: true});
+						navigation.navigate({name: route.name, merge: true})
 					}
-				};
+				}
 
 				const onLongPress = () => {
 					navigation.emit({
 						type: 'tabLongPress',
 						target: route.key,
-					});
-				};
+					})
+				}
 
 				return (
 					<TouchableOpacity
@@ -144,16 +143,16 @@ function MyTabBar({state, descriptors, navigation}) {
 							index={state.index}
 						/>
 					</TouchableOpacity>
-				);
+				)
 			})}
 		</Animated.View>
-	);
+	)
 }
 
 const TabIcon = ({tabBarIcon, label, isFocused, activeColor, inActiveColor, index}) => {
-	const [translateY] = useState(new Animated.Value(0));
-	const [textTranslateY] = useState(new Animated.Value(0));
-	const [textOpacity] = useState(new Animated.Value(1));
+	const [translateY] = useState(new Animated.Value(0))
+	const [textTranslateY] = useState(new Animated.Value(0))
+	const [textOpacity] = useState(new Animated.Value(1))
 
 	const moveUpDownTabIcon = (icon, text, opacity) => {
 		Animated.parallel([
@@ -169,16 +168,16 @@ const TabIcon = ({tabBarIcon, label, isFocused, activeColor, inActiveColor, inde
 				toValue: opacity,
 				useNativeDriver: true,
 			}),
-		]).start();
-	};
+		]).start()
+	}
 
 	useEffect(() => {
 		if (isFocused) {
-			moveUpDownTabIcon(-42, 12, 1);
+			moveUpDownTabIcon(-42, 12, 1)
 		} else {
-			moveUpDownTabIcon(0, 25, 0);
+			moveUpDownTabIcon(0, 25, 0)
 		}
-	}, [index]);
+	}, [index])
 
 	return (
 		<View>
@@ -207,8 +206,8 @@ const TabIcon = ({tabBarIcon, label, isFocused, activeColor, inActiveColor, inde
 				{label}
 			</Animated.Text>
 		</View>
-	);
-};
+	)
+}
 
 function MainScreen() {
 	return (
@@ -236,10 +235,10 @@ function MainScreen() {
 				/>
 			))}
 		</Tab.Navigator>
-	);
+	)
 }
 
-export default MainScreen;
+export default MainScreen
 
 const styles = StyleSheet.create({
 	bottomTab: {
@@ -280,4 +279,4 @@ const styles = StyleSheet.create({
 		elevation: 6,
 		shadowColor: Colors.black_blur4,
 	},
-});
+})

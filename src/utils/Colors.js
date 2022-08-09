@@ -46,7 +46,7 @@ const Colors = {
 	// grape_fruit_bg: '#ffc6bc',
 	// tangerine_bg: '#ffd6b1',
 	// spinach_bg: '#accec2',
-};
+}
 
 // #rrggbbaa
 // 100%	FF
@@ -71,4 +71,4 @@ const Colors = {
 // 5%	0D
 // 0%	00
 
-export default Colors;
+export default Colors
