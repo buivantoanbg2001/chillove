@@ -1,4 +1,4 @@
-import React, {useRef, useState, createContext, useEffect} from 'react'
+import React, {useRef, useState, createContext, useCallback} from 'react'
 import {StyleSheet, View, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import {useBackHandler} from '../hooks/useBackHandler.hook'
 import {FlatList} from 'react-native-gesture-handler'
@@ -7,7 +7,7 @@ import Colors from '../utils/Colors'
 import Post from '../components/Post'
 import Icon, {Icons} from '../utils/Icons'
 import * as Animatable from 'react-native-animatable'
-import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet'
+import BottomSheet, {BottomSheetFlatList, BottomSheetBackdrop} from '@gorhom/bottom-sheet'
 import {CustomText} from '../utils/CustomComponents'
 import {useDispatch} from 'react-redux'
 import Comment from '../components/Comment'
@@ -19,22 +19,13 @@ const PADDING = 16
 export const BottomSheetContext = createContext()
 
 const HomeTab = ({navigation}) => {
-	const [currentCommentPost, setCurrentCommentPost] = useState()
-	const [currentMorePost, setCurrentMorePost] = useState()
+	const [currentPost, setCurrentPost] = useState()
 	const [indexCommentSheet, setIndexCommentSheet] = useState(-1)
 	const [indexMoreSheet, setIndexMoreSheet] = useState(-1)
 	const commentSheetRef = useRef(null)
 	const moreSheetRef = useRef(null)
 	const flatListRef = useRef(null)
 	const dispatch = useDispatch()
-
-	useEffect(() => {
-		if (indexCommentSheet == -1 && indexMoreSheet == -1) {
-			setTabBarStyle(1, 0)
-		} else {
-			setTabBarStyle(0, 150)
-		}
-	}, [indexCommentSheet, indexMoreSheet])
 
 	useBackHandler(() => {
 		if (indexMoreSheet >= 0) {
@@ -47,7 +38,16 @@ const HomeTab = ({navigation}) => {
 		return false
 	})
 
-	const setTabBarStyle = (opacity, translateY) => {
+	/**
+	 * Render ther Backdrop for BottomSheet
+	 * @disappearsOnIndex -0.5: cheat :), It will send a bug if we set -1
+	 */
+	const renderBackdrop = useCallback(
+		props => <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-0.5} />,
+		[],
+	)
+
+	const setTabBarStyle = useCallback((opacity, translateY) => {
 		dispatch({
 			type: 'SET_TAB_BAR_STYLE',
 			payload: {
@@ -55,7 +55,7 @@ const HomeTab = ({navigation}) => {
 				translateY: translateY,
 			},
 		})
-	}
+	}, [])
 
 	const scrollToTop = () => {
 		flatListRef.current.scrollToOffset({animated: true, offset: 0})
@@ -65,17 +65,23 @@ const HomeTab = ({navigation}) => {
 		navigation.push('NewPostScreen')
 	}
 
-	const openComment = post => {
+	const openComment = useCallback(post => {
 		setTabBarStyle(0, 150)
-		setCurrentCommentPost(post)
 		commentSheetRef.current.snapToIndex(0)
-	}
+		setTimeout(() => setCurrentPost(post))
+	}, [])
 
-	const openMore = post => {
+	const openMore = useCallback(post => {
 		setTabBarStyle(0, 150)
-		setCurrentMorePost(post)
 		moreSheetRef.current.snapToIndex(0)
-	}
+		setTimeout(() => setCurrentPost(post))
+	}, [])
+
+	const onAnimate = useCallback((_, toIndex) => {
+		if (toIndex === -1) {
+			setTabBarStyle(1, 0)
+		}
+	}, [])
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -110,8 +116,10 @@ const HomeTab = ({navigation}) => {
 					enablePanDownToClose
 					snapPoints={['66%', '100%']}
 					footerComponent={CommentBox}
+					backdropComponent={renderBackdrop}
+					onAnimate={onAnimate}
 					onChange={index => setIndexCommentSheet(index)}>
-					{currentCommentPost && (
+					{currentPost && (
 						<View style={styles.commentContainer}>
 							<View style={styles.commentHeader}>
 								<CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>
@@ -127,9 +135,7 @@ const HomeTab = ({navigation}) => {
 								</TouchableOpacity>
 							</View>
 							<BottomSheetFlatList
-								data={currentCommentPost.comments.sort(
-									(c1, c2) => c1.commented_at - c2.commented_at,
-								)}
+								data={currentPost.comments.sort((c1, c2) => c1.commented_at - c2.commented_at)}
 								renderItem={({item}) => <Comment comment={item} />}
 								keyExtractor={(_, index) => index}
 								initialNumToRender={24}
@@ -146,6 +152,8 @@ const HomeTab = ({navigation}) => {
 				index={-1}
 				enablePanDownToClose
 				snapPoints={['20%']}
+				backdropComponent={renderBackdrop}
+				onAnimate={onAnimate}
 				onChange={index => setIndexMoreSheet(index)}></BottomSheet>
 		</SafeAreaView>
 	)
