@@ -27,6 +27,9 @@ const HomeTab = ({navigation}) => {
 	const flatListRef = useRef(null)
 	const dispatch = useDispatch()
 
+	/**
+	 * Close the BottomSheet if it is opening when Back button is pressed
+	 */
 	useBackHandler(() => {
 		if (indexMoreSheet >= 0) {
 			moreSheetRef.current.close()
@@ -39,8 +42,8 @@ const HomeTab = ({navigation}) => {
 	})
 
 	/**
-	 * Render ther Backdrop for BottomSheet
-	 * @disappearsOnIndex -0.5: cheat :), It will send a bug if we set -1
+	 * Render the Backdrop for BottomSheet
+	 * @disappearsOnIndex -0.5: cheat =), it will send a bug if we set -1
 	 */
 	const renderBackdrop = useCallback(
 		props => <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-0.5} />,
@@ -57,13 +60,13 @@ const HomeTab = ({navigation}) => {
 		})
 	}, [])
 
-	const scrollToTop = () => {
+	const scrollToTop = useCallback(() => {
 		flatListRef.current.scrollToOffset({animated: true, offset: 0})
-	}
+	}, [])
 
-	const handleAddNewPost = () => {
+	const handleAddNewPost = useCallback(() => {
 		navigation.push('NewPostScreen')
-	}
+	}, [])
 
 	const openComment = useCallback(post => {
 		setTabBarStyle(0, 150)
@@ -77,6 +80,9 @@ const HomeTab = ({navigation}) => {
 		setTimeout(() => setCurrentPost(post))
 	}, [])
 
+	/**
+	 * Show Tabbar when starting to close the BottomSheet
+	 */
 	const onAnimate = useCallback((_, toIndex) => {
 		if (toIndex === -1) {
 			setTabBarStyle(1, 0)
@@ -85,6 +91,7 @@ const HomeTab = ({navigation}) => {
 
 	return (
 		<SafeAreaView style={styles.container}>
+			{/* Image Background */}
 			<Animatable.Image
 				source={{
 					uri: 'https://i.imgur.com/obASxu0.jpg',
@@ -98,7 +105,10 @@ const HomeTab = ({navigation}) => {
 				useNativeDriver={true}
 				resizeMode={'cover'}
 			/>
+
 			<Header handleAddNewPost={handleAddNewPost} scrollToTop={scrollToTop} />
+
+			{/* All posts */}
 			<FlatList
 				ref={flatListRef}
 				contentContainerStyle={{paddingBottom: 146, paddingTop: 6}}
@@ -109,6 +119,8 @@ const HomeTab = ({navigation}) => {
 				showsHorizontalScrollIndicator={false}
 				nestedScrollEnabled
 			/>
+
+			{/* BottomSheet for 'Comment' */}
 			<BottomSheetContext.Provider value={{indexSheet: indexCommentSheet}}>
 				<BottomSheet
 					ref={commentSheetRef}
@@ -147,6 +159,8 @@ const HomeTab = ({navigation}) => {
 					)}
 				</BottomSheet>
 			</BottomSheetContext.Provider>
+
+			{/* BottomSheet for button 'More' */}
 			<BottomSheet
 				ref={moreSheetRef}
 				index={-1}
