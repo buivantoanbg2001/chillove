@@ -17,6 +17,9 @@ import React from 'react'
 import Colors from './Colors'
 import LinearGradient from 'react-native-linear-gradient'
 
+const PADDING = 16
+const MARGIN = 24
+
 const CustomText = (props: TextProps) => {
 	return (
 		<Text {...props} style={[styles.defaultText, props.style]}>
@@ -41,7 +44,7 @@ const CustomTextInput = (props: TextInputProps) => {
 	return (
 		<TextInput
 			{...props}
-			style={[styles.defaultText, props.style]}
+			style={[styles.defaultTextInput, props.style]}
 			placeholderTextColor={props.placeholderTextColor || Colors.gray}
 			selectionColor={props.selectionColor || Colors.black_blur4}>
 			{props.children}
@@ -50,13 +53,13 @@ const CustomTextInput = (props: TextInputProps) => {
 }
 
 type ButtonProps = {
-	solid: boolean
-	title: string
-	source: ImageSourcePropType
-	iconAnimStyle: {}
-	iconStyle: {}
-	titleStyle: {}
-	gap: number
+	solid?: boolean
+	title?: string
+	source?: ImageSourcePropType
+	iconAnimStyle?: {}
+	iconStyle?: {}
+	titleStyle?: {}
+	gap?: number
 } & TouchableOpacityProps
 
 const Button = ({
@@ -119,6 +122,16 @@ const styles = StyleSheet.create({
 	},
 	defaultImage: {
 		borderRadius: 32,
+	},
+	defaultTextInput: {
+		color: Colors.black,
+		fontSize: 14,
+		fontFamily: 'Montserrat-500',
+		backgroundColor: Colors.lychee,
+		borderRadius: 12,
+		padding: 12,
+		marginHorizontal: MARGIN,
+		marginVertical: PADDING / 4,
 	},
 	defaultButton: {
 		alignItems: 'center',

@@ -30,12 +30,12 @@ import {
 } from 'firebase/firestore'
 
 const firebaseConfig = {
-	apiKey: 'AIzaSyAPejXc3k1xIZQSprAP6Z1n1t2aCv4gW7k',
-	authDomain: 'chillove-app-2307.firebaseapp.com',
-	projectId: 'chillove-app-2307',
-	storageBucket: 'chillove-app-2307.appspot.com',
-	messagingSenderId: '1033876932259',
-	appId: '1:1033876932259:web:b02030863534b4a3766116',
+	apiKey: 'AIzaSyAW2bpiCsQStH_U-sYUYaovXmEcO5W5v28',
+	authDomain: 'chillove.firebaseapp.com',
+	projectId: 'chillove',
+	storageBucket: 'chillove.appspot.com',
+	messagingSenderId: '970756846741',
+	appId: '1:970756846741:web:712039f97e4124b4e5579c',
 }
 
 // Initialize Firebase
