@@ -1,8 +1,11 @@
-import {StyleSheet, Text, View, SafeAreaView, Platform} from 'react-native'
+import {StyleSheet, Text, View, SafeAreaView, Platform, Dimensions} from 'react-native'
 import React, {useState} from 'react'
 import Colors from '../utils/Colors'
-import {Button, CustomTextInput} from '../utils/CustomComponents'
+import {Button, CustomText, CustomTextInput} from '../utils/CustomComponents'
 import {auth, signInWithEmailAndPassword} from '../firebase/firebase-config'
+import * as Animatable from 'react-native-animatable'
+
+const {height} = Dimensions.get('window')
 
 type Props = {}
 
@@ -20,11 +23,36 @@ const LoginScreen = (props: Props) => {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<CustomTextInput placeholder="Email" value={email} onChangeText={text => setEmail(text)} />
+			<Animatable.Image
+				source={{
+					uri: 'https://i.imgur.com/obASxu0.jpg',
+				}}
+				style={StyleSheet.absoluteFillObject}
+				blurRadius={50}
+				animation="rotate"
+				iterationCount="infinite"
+				easing={'linear'}
+				duration={60000}
+				useNativeDriver={true}
+				resizeMode={'cover'}
+			/>
+			<CustomText style={styles.title}>Login</CustomText>
+			<CustomTextInput
+				placeholder="Email"
+				value={email}
+				onChangeText={text => setEmail(text)}
+				autoCapitalize="none"
+				keyboardType="email-address"
+				textContentType="emailAddress"
+			/>
 			<CustomTextInput
 				placeholder="Password"
 				value={password}
 				onChangeText={text => setPassword(text)}
+				autoCapitalize="none"
+				autoCorrect={false}
+				secureTextEntry={true}
+				textContentType="password"
 			/>
 			<View>
 				<Button solid title="GO" onPress={onLogin} style={{padding: 12}} />
@@ -37,9 +65,14 @@ export default LoginScreen
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: Colors.grape_fruit_blur,
 		flex: 1,
-		justifyContent: 'center',
-		// marginTop: Platform.OS === 'android' ? 30 : 0,
+		paddingTop: Platform.OS === 'android' ? 30 : 0,
+	},
+	title: {
+		fontSize: 32,
+		fontFamily: 'Montserrat-600',
+		alignSelf: 'center',
+		marginTop: height * 0.3,
+		marginBottom: 20,
 	},
 })

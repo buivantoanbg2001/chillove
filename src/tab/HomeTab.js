@@ -111,7 +111,7 @@ const HomeTab = ({navigation}) => {
 			{/* All posts */}
 			<FlatList
 				ref={flatListRef}
-				contentContainerStyle={{paddingBottom: 146, paddingTop: 6}}
+				contentContainerStyle={{paddingBottom: 146, paddingTop: 4}}
 				data={posts.sort((p1, p2) => p2.created_at - p1.created_at)}
 				renderItem={({item}) => <Post post={item} openComment={openComment} openMore={openMore} />}
 				keyExtractor={(_, index) => index}
@@ -205,14 +205,13 @@ const styles = StyleSheet.create({
 	container: {
 		backgroundColor: Colors.lychee,
 		flex: 1,
+		paddingTop: Platform.OS === 'android' ? 30 : 0,
 	},
 	header: {
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		flexDirection: 'row',
 		paddingHorizontal: 24,
-		paddingBottom: 5,
-		marginTop: Platform.OS === 'android' ? 30 : 0,
 		height: 90,
 	},
 	logo: {

@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {FC, useState} from 'react'
 import {
 	StyleSheet,
 	View,
@@ -10,28 +10,49 @@ import {
 	FlatList,
 	Switch,
 	Dimensions,
+	Platform,
+	Pressable,
 } from 'react-native'
 import Colors from '../utils/Colors'
-import ImagePicker from 'react-native-image-crop-picker'
-import {Button, CustomText} from '../utils/CustomComponents'
+import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker'
+import {Button, CustomText, CustomTextInput} from '../utils/CustomComponents'
 import Icon, {Icons} from '../utils/Icons'
 import * as Animatable from 'react-native-animatable'
+import {useNavigation} from '@react-navigation/native'
+import {MentionInput, MentionSuggestionsProps} from 'react-native-controlled-mentions'
+import {storage, ref, uploadBytes} from '../firebase/firebase-config'
+import uuid from 'react-native-uuid'
 
 const {width} = Dimensions.get('window')
 const PADDING = 16
 const MARGIN = 24
 
-const NewPostScreen = ({navigation}) => {
-	const [caption, setCaption] = useState('')
-	const [postImage, setPostImage] = useState([])
-	const [privatePost, setPrivatePost] = useState(false)
+type Props = {}
 
-	const addNewPost = () => {
+const NewPostScreen = (props: Props) => {
+	const [caption, setCaption] = useState('')
+	const [postImages, setPostImages] = useState<ImageOrVideo[]>([])
+	const [privatePost, setPrivatePost] = useState(false)
+	const navigation = useNavigation()
+
+	const addNewPost = async () => {
 		/**
 		 * @todo Add post to Firebase
 		 * @success navigation.goBack();
 		 * @error showToast("Post failed")
 		 */
+
+		for (let i = 0; i < postImages.length; i++) {
+			const imageRef = ref(storage, uuid.v4().toString())
+
+			const image = await fetch(postImages[i].path)
+			const blob = await image.blob()
+
+			uploadBytes(imageRef, blob).then(snapshot => {
+				console.log('Uploaded a blob or file!')
+				console.log(snapshot.ref.fullPath)
+			})
+		}
 	}
 
 	const goBack = () => {
@@ -49,16 +70,47 @@ const NewPostScreen = ({navigation}) => {
 		})
 			.then(images => {
 				if (images != null) {
-					setPostImage(images)
+					setPostImages(images)
 				}
 			})
 			.catch(e => {
 				console.log('Error code', e.code)
 
 				if (e.code == 'E_PICKER_CANCELLED') {
-					setPostImage([])
+					setPostImages([])
 				}
 			})
+	}
+
+	const suggestions = [
+		{id: '1', name: 'birthday'},
+		{id: '2', name: 'halloween'},
+		{id: '3', name: 'valentine'},
+		{id: '4', name: 'christmas'},
+		{id: '5', name: 'tet'},
+	]
+
+	const renderSuggestions: FC<MentionSuggestionsProps> = ({keyword, onSuggestionPress}) => {
+		if (keyword == null) {
+			return null
+		}
+
+		return (
+			<View>
+				{suggestions
+					.filter(one => one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase()))
+					.map(one => (
+						<TouchableOpacity
+							key={one.id}
+							onPress={() => onSuggestionPress(one)}
+							style={{
+								padding: 12,
+							}}>
+							<CustomText style={{color: Colors.grape_fruit}}>#{one.name}</CustomText>
+						</TouchableOpacity>
+					))}
+			</View>
+		)
 	}
 
 	return (
@@ -77,7 +129,7 @@ const NewPostScreen = ({navigation}) => {
 				resizeMode={'cover'}
 			/>
 			<Header addNewPost={addNewPost} goBack={goBack} />
-			<ScrollView>
+			<ScrollView keyboardShouldPersistTaps={'handled'}>
 				<Animatable.View
 					style={styles.elementContainer}
 					animation={'fadeInUp'}
@@ -92,16 +144,26 @@ const NewPostScreen = ({navigation}) => {
 						/>
 						<CustomText style={styles.elementTitle}>Caption</CustomText>
 					</View>
-					<TextInput
+					<CustomTextInput
 						style={styles.caption}
-						selectionColor={Colors.black_blur7}
-						placeholderTextColor={Colors.black_blur3}
 						placeholder=" ... I❤U ... "
 						multiline
 						value={caption}
 						onChangeText={text => setCaption(text)}
 					/>
 				</Animatable.View>
+
+				<MentionInput
+					value={caption}
+					onChange={text => setCaption(text)}
+					partTypes={[
+						{
+							trigger: '#',
+							renderSuggestions,
+							textStyle: {color: Colors.grape_fruit, fontSize: 14, fontFamily: 'Montserrat-500'},
+						},
+					]}
+				/>
 
 				<Animatable.View
 					style={[
@@ -125,7 +187,7 @@ const NewPostScreen = ({navigation}) => {
 
 					<View style={styles.paginationNumber}>
 						<CustomText style={styles.imagePostCount}>
-							{postImage.length}
+							{postImages.length}
 							<CustomText style={{fontSize: 8}}> / {23}</CustomText>
 						</CustomText>
 					</View>
@@ -145,9 +207,9 @@ const NewPostScreen = ({navigation}) => {
 								paddingLeft: PADDING - 8 - 4,
 							}}
 							horizontal
-							data={postImage}
+							data={postImages}
 							renderItem={({item}) => <Image source={{uri: item.path}} style={styles.postImage} />}
-							keyExtractor={(_, index) => index}
+							keyExtractor={(item, index) => index.toString()}
 							initialNumToRender={24}
 							showsHorizontalScrollIndicator={false}
 						/>
@@ -186,7 +248,12 @@ const NewPostScreen = ({navigation}) => {
 	)
 }
 
-const Header = ({addNewPost, goBack}) => {
+type HeaderProps = {
+	addNewPost: () => void
+	goBack: () => void
+}
+
+const Header = ({addNewPost, goBack}: HeaderProps) => {
 	return (
 		<View style={styles.header}>
 			<TouchableOpacity onPress={goBack}>
@@ -205,6 +272,7 @@ export default NewPostScreen
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		paddingTop: Platform.OS === 'android' ? 30 : 0,
 	},
 	elementContainer: {
 		padding: PADDING,
@@ -230,14 +298,10 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		paddingHorizontal: 24,
 		height: 90,
-		marginTop: Platform.OS === 'android' ? 30 : 0,
 	},
 	caption: {
-		fontFamily: 'Montserrat-500',
-		color: Colors.grape_fruit,
 		backgroundColor: Colors.white_blur7,
 		borderRadius: 24,
-		padding: 12,
 		minHeight: 80,
 		maxHeight: 120,
 		textAlignVertical: 'top',
@@ -279,7 +343,6 @@ const styles = StyleSheet.create({
 	postButton: {
 		marginTop: 40,
 		marginBottom: 32,
-		marginHorizontal: MARGIN * 3,
 	},
 	headerText: {
 		color: Colors.grape_fruit,

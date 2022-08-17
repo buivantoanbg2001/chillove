@@ -12,6 +12,7 @@ import {
 	Animated,
 	TouchableOpacityProps,
 	ImageSourcePropType,
+	Dimensions,
 } from 'react-native'
 import React from 'react'
 import Colors from './Colors'
@@ -19,6 +20,7 @@ import LinearGradient from 'react-native-linear-gradient'
 
 const PADDING = 16
 const MARGIN = 24
+const {width, height} = Dimensions.get('window')
 
 const CustomText = (props: TextProps) => {
 	return (
@@ -45,7 +47,7 @@ const CustomTextInput = (props: TextInputProps) => {
 		<TextInput
 			{...props}
 			style={[styles.defaultTextInput, props.style]}
-			placeholderTextColor={props.placeholderTextColor || Colors.gray}
+			placeholderTextColor={props.placeholderTextColor || Colors.black_blur3}
 			selectionColor={props.selectionColor || Colors.black_blur4}>
 			{props.children}
 		</TextInput>
@@ -130,18 +132,17 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.lychee,
 		borderRadius: 12,
 		padding: 12,
-		marginHorizontal: MARGIN,
-		marginVertical: PADDING / 4,
 	},
 	defaultButton: {
 		alignItems: 'center',
 		justifyContent: 'center',
+		marginHorizontal: width * 0.1,
 	},
 	solidButtonWrapper: {
 		borderRadius: 50,
+		marginHorizontal: width * 0.1,
 	},
 	solid: {
-		flex: 1,
 		padding: 12,
 		borderRadius: 50,
 		justifyContent: 'center',

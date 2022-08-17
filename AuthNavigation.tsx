@@ -15,6 +15,8 @@ const AuthNavigation = () => {
 	}, [])
 
 	return (
+		// <SplashStack />
+		// <SignedOutStack />
 		<>{firstOpenApp ? <SplashStack /> : currentUser ? <SignedInStack /> : <SignedOutStack />}</>
 	)
 }

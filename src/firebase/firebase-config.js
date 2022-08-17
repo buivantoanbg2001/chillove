@@ -28,6 +28,7 @@ import {
 	orderBy,
 	Timestamp,
 } from 'firebase/firestore'
+import {getStorage, ref, uploadBytes} from 'firebase/storage'
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyAW2bpiCsQStH_U-sYUYaovXmEcO5W5v28',
@@ -43,6 +44,7 @@ getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 
 const auth = getAuth()
 const db = getFirestore()
+const storage = getStorage()
 
 export {
 	auth,
@@ -70,4 +72,7 @@ export {
 	arrayRemove,
 	orderBy,
 	Timestamp,
+	storage,
+	ref,
+	uploadBytes,
 }

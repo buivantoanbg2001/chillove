@@ -9,6 +9,19 @@ const SplashScreen = () => {
 	return (
 		<SafeAreaView style={styles.container}>
 			<Animatable.Image
+				source={{
+					uri: 'https://i.imgur.com/obASxu0.jpg',
+				}}
+				style={StyleSheet.absoluteFillObject}
+				blurRadius={50}
+				animation="rotate"
+				iterationCount="infinite"
+				easing={'linear'}
+				duration={60000}
+				useNativeDriver={true}
+				resizeMode={'cover'}
+			/>
+			<Animatable.Image
 				source={require('../../assets/images/logo.png')}
 				style={styles.logo}
 				animation="fadeInUp"
@@ -16,8 +29,8 @@ const SplashScreen = () => {
 				useNativeDriver={true}
 			/>
 			<Animatable.Image
-				source={require('../../assets/images/header-logo-contrast.png')}
-				style={{width: 100, height: 50, resizeMode: 'contain'}}
+				source={require('../../assets/images/header-logo.png')}
+				style={{width: 130, height: 65, resizeMode: 'contain'}}
 				animation="fadeInUp"
 				duration={1000}
 				useNativeDriver={true}
@@ -33,7 +46,6 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		alignItems: 'center',
-		backgroundColor: Colors.lychee,
 		paddingTop: Platform.OS === 'android' ? 30 : 0,
 	},
 	logo: {

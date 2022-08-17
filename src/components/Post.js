@@ -216,7 +216,8 @@ const styles = StyleSheet.create({
 	container: {
 		width: width - MARGIN * 2,
 		marginHorizontal: MARGIN,
-		marginVertical: PADDING,
+		marginTop: PADDING * 0.5,
+		marginBottom: PADDING * 1.5,
 		borderRadius: 32,
 		overflow: 'hidden',
 	},
