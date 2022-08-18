@@ -14,6 +14,7 @@ import {
 	ImageSourcePropType,
 	Dimensions,
 } from 'react-native'
+
 import React from 'react'
 import Colors from './Colors'
 import LinearGradient from 'react-native-linear-gradient'

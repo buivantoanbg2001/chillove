@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react'
+import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import {
 	StyleSheet,
 	View,
@@ -11,7 +11,7 @@ import {
 	Switch,
 	Dimensions,
 	Platform,
-	Pressable,
+	Text,
 } from 'react-native'
 import Colors from '../utils/Colors'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker'
@@ -19,7 +19,6 @@ import {Button, CustomText, CustomTextInput} from '../utils/CustomComponents'
 import Icon, {Icons} from '../utils/Icons'
 import * as Animatable from 'react-native-animatable'
 import {useNavigation} from '@react-navigation/native'
-import {MentionInput, MentionSuggestionsProps} from 'react-native-controlled-mentions'
 import {storage, ref, uploadBytes} from '../firebase/firebase-config'
 import uuid from 'react-native-uuid'
 
@@ -30,10 +29,38 @@ const MARGIN = 24
 type Props = {}
 
 const NewPostScreen = (props: Props) => {
-	const [caption, setCaption] = useState('')
+	const [caption, setCaption] = useState<string>('')
 	const [postImages, setPostImages] = useState<ImageOrVideo[]>([])
-	const [privatePost, setPrivatePost] = useState(false)
+	const [privatePost, setPrivatePost] = useState<boolean>(false)
+	const [hashtagSet, setHashtagSet] = useState<string[]>([])
 	const navigation = useNavigation()
+
+	const regexHashtag = /^#[0-9a-z_]*[0-9a-z]+[0-9a-z_]*/g
+
+	const highlightHashtag = (text: string) => {
+		const word_array = text.split(' ')
+		return (
+			<>
+				{word_array.map((item, index) => {
+					if (item.match(regexHashtag)) {
+						return (
+							<CustomText style={{color: Colors.grape_fruit}}>
+								{item}
+								{index == word_array.length - 1 ? '' : ' '}
+							</CustomText>
+						)
+					} else {
+						return (
+							<CustomText>
+								{item}
+								{index == word_array.length - 1 ? '' : ' '}
+							</CustomText>
+						)
+					}
+				})}
+			</>
+		)
+	}
 
 	const addNewPost = async () => {
 		/**
@@ -42,17 +69,20 @@ const NewPostScreen = (props: Props) => {
 		 * @error showToast("Post failed")
 		 */
 
-		for (let i = 0; i < postImages.length; i++) {
-			const imageRef = ref(storage, uuid.v4().toString())
+		const hashtagArray = caption.split(' ').filter((item, index) => item.match(regexHashtag))
+		setHashtagSet([...new Set(hashtagArray)])
 
-			const image = await fetch(postImages[i].path)
-			const blob = await image.blob()
+		// for (let i = 0; i < postImages.length; i++) {
+		// 	const imageRef = ref(storage, uuid.v4().toString())
 
-			uploadBytes(imageRef, blob).then(snapshot => {
-				console.log('Uploaded a blob or file!')
-				console.log(snapshot.ref.fullPath)
-			})
-		}
+		// 	const image = await fetch(postImages[i].path)
+		// 	const blob = await image.blob()
+
+		// 	uploadBytes(imageRef, blob).then(snapshot => {
+		// 		console.log('Uploaded a blob or file!')
+		// 		console.log(snapshot.ref.fullPath)
+		// 	})
+		// }
 	}
 
 	const goBack = () => {
@@ -82,37 +112,6 @@ const NewPostScreen = (props: Props) => {
 			})
 	}
 
-	const suggestions = [
-		{id: '1', name: 'birthday'},
-		{id: '2', name: 'halloween'},
-		{id: '3', name: 'valentine'},
-		{id: '4', name: 'christmas'},
-		{id: '5', name: 'tet'},
-	]
-
-	const renderSuggestions: FC<MentionSuggestionsProps> = ({keyword, onSuggestionPress}) => {
-		if (keyword == null) {
-			return null
-		}
-
-		return (
-			<View>
-				{suggestions
-					.filter(one => one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase()))
-					.map(one => (
-						<TouchableOpacity
-							key={one.id}
-							onPress={() => onSuggestionPress(one)}
-							style={{
-								padding: 12,
-							}}>
-							<CustomText style={{color: Colors.grape_fruit}}>#{one.name}</CustomText>
-						</TouchableOpacity>
-					))}
-			</View>
-		)
-	}
-
 	return (
 		<SafeAreaView style={styles.container}>
 			<Animatable.Image
@@ -129,7 +128,7 @@ const NewPostScreen = (props: Props) => {
 				resizeMode={'cover'}
 			/>
 			<Header addNewPost={addNewPost} goBack={goBack} />
-			<ScrollView keyboardShouldPersistTaps={'handled'}>
+			<ScrollView keyboardShouldPersistTaps={'handled'} nestedScrollEnabled>
 				<Animatable.View
 					style={styles.elementContainer}
 					animation={'fadeInUp'}
@@ -144,26 +143,15 @@ const NewPostScreen = (props: Props) => {
 						/>
 						<CustomText style={styles.elementTitle}>Caption</CustomText>
 					</View>
+
 					<CustomTextInput
 						style={styles.caption}
 						placeholder=" ... I❤U ... "
 						multiline
-						value={caption}
-						onChangeText={text => setCaption(text)}
-					/>
+						onChangeText={text => setCaption(text)}>
+						{highlightHashtag(caption)}
+					</CustomTextInput>
 				</Animatable.View>
-
-				<MentionInput
-					value={caption}
-					onChange={text => setCaption(text)}
-					partTypes={[
-						{
-							trigger: '#',
-							renderSuggestions,
-							textStyle: {color: Colors.grape_fruit, fontSize: 14, fontFamily: 'Montserrat-500'},
-						},
-					]}
-				/>
 
 				<Animatable.View
 					style={[
