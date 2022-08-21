@@ -38,6 +38,7 @@ const LoginScreen = (props: Props) => {
 			/>
 			<CustomText style={styles.title}>Login</CustomText>
 			<CustomTextInput
+				style={styles.textInput}
 				placeholder="Email"
 				value={email}
 				onChangeText={text => setEmail(text)}
@@ -46,6 +47,7 @@ const LoginScreen = (props: Props) => {
 				textContentType="emailAddress"
 			/>
 			<CustomTextInput
+				style={styles.textInput}
 				placeholder="Password"
 				value={password}
 				onChangeText={text => setPassword(text)}
@@ -74,5 +76,9 @@ const styles = StyleSheet.create({
 		alignSelf: 'center',
 		marginTop: height * 0.3,
 		marginBottom: 20,
+	},
+	textInput: {
+		marginBottom: 8,
+		marginHorizontal: 24,
 	},
 })

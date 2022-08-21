@@ -1,11 +1,14 @@
 import React, {useState, useRef} from 'react'
-import {StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, Animated} from 'react-native'
+import {StyleSheet, View, Image, Dimensions, TouchableOpacity, Animated} from 'react-native'
 import Colors from '../utils/Colors'
 import {useSelector} from 'react-redux'
 import {CustomText} from '../utils/CustomComponents'
 import PaginationDot from 'react-native-animated-pagination-dot'
 import Icon, {Icons} from '../utils/Icons'
 import FastImage from 'react-native-fast-image'
+import useHighlightHashtag from '../hooks/useHighlightHashtag.hook'
+import Video from 'react-native-video'
+import TimeRelative from '../utils/TimeRelative'
 
 const {width} = Dimensions.get('window')
 const PADDING = 16
@@ -27,8 +30,8 @@ const Post = ({post, openComment, openMore}) => {
 			user={user}
 			seeMore={seeMore}
 			handleSeeMore={handleSeeMore}
-			openComment={() => openComment(post)}
-			openMore={() => openMore(post)}
+			openComment={openComment}
+			openMore={openMore}
 		/>
 	)
 }
@@ -41,8 +44,10 @@ const AestheticMode = ({post, user, seeMore, handleSeeMore, openComment, openMor
 				style={[StyleSheet.absoluteFillObject, {opacity: 0.3}]}
 				blurRadius={23}
 			/>
-			<PostImages post={post} />
-			<PostInfo post={post} user={user} />
+			<View style={{minHeight: 88}}>
+				<PostImages post={post} />
+				<PostInfo post={post} user={user} />
+			</View>
 			<PostButton post={post} openComment={openComment} openMore={openMore} />
 			<Caption post={post} seeMore={seeMore} handleSeeMore={handleSeeMore} />
 			<Hashtag post={post} />
@@ -51,13 +56,15 @@ const AestheticMode = ({post, user, seeMore, handleSeeMore, openComment, openMor
 }
 
 const PostImages = ({post}) => {
+	if (post.images.length == 0) return <></>
+
 	const [currentImage, setCurrentImage] = useState(0)
 	const scrollX = useRef(new Animated.Value(0)).current
 
 	let onScroll = e => {
 		let pageNumber = Math.min(
 			Math.max(Math.floor(e.nativeEvent.contentOffset.x / (width - 24 * 2) + 0.5), 0),
-			post.image_urls.length,
+			post.images.length,
 		)
 		setCurrentImage(pageNumber)
 	}
@@ -66,7 +73,7 @@ const PostImages = ({post}) => {
 		<View>
 			<Animated.FlatList
 				horizontal
-				data={post.image_urls}
+				data={post.images}
 				renderItem={({item, index}) => {
 					const opacity = scrollX.interpolate({
 						inputRange: [
@@ -95,6 +102,14 @@ const PostImages = ({post}) => {
 								source={{uri: item, priority: FastImage.priority.low}}
 								style={StyleSheet.absoluteFillObject}
 							/>
+
+							{/* <Video
+								source={{
+									uri: 'https://firebasestorage.googleapis.com/v0/b/chillove.appspot.com/o/ELANTRA%20video%2030S.mp4?alt=media&token=9a501299-524f-4a17-958b-4fcbd0901049',
+								}}
+								style={{width: 100, height: 100, position: 'absolute'}}
+								paused
+							/> */}
 						</Animated.View>
 					)
 				}}
@@ -102,7 +117,6 @@ const PostImages = ({post}) => {
 				pagingEnabled
 				initialNumToRender={24}
 				showsHorizontalScrollIndicator={false}
-				// onScroll={onScroll}
 				onScroll={Animated.event([{nativeEvent: {contentOffset: {x: scrollX}}}], {
 					useNativeDriver: true,
 					listener: onScroll,
@@ -112,7 +126,7 @@ const PostImages = ({post}) => {
 				<PaginationDot
 					activeDotColor={Colors.grape_fruit}
 					curPage={currentImage}
-					maxPage={post.image_urls.length}
+					maxPage={post.images.length}
 				/>
 			</View>
 			<View style={styles.paginationNumber}>
@@ -123,7 +137,7 @@ const PostImages = ({post}) => {
 						fontFamily: 'Montserrat-700',
 					}}>
 					{Math.max(currentImage + 1, 0)}
-					<CustomText style={{fontSize: 8}}> / {post.image_urls.length}</CustomText>
+					<CustomText style={{fontSize: 8}}> / {post.images.length}</CustomText>
 				</CustomText>
 			</View>
 		</View>
@@ -145,7 +159,7 @@ const PostInfo = ({post, user}) => {
 					}}>
 					{user.username}
 				</CustomText>
-				<CustomText style={{color: Colors.gray}}>• {post.created_at}</CustomText>
+				<TimeRelative style={{color: Colors.gray}} time={post.created_at} />
 			</View>
 		</View>
 	)
@@ -169,7 +183,7 @@ const PostButton = ({post, openComment, openMore}) => {
 				</TouchableOpacity>
 			</View>
 			<View style={{flexDirection: 'row', alignItems: 'center'}}>
-				{post.private && (
+				{post.is_private && (
 					<View style={{marginRight: 12, opacity: 0.2}}>
 						<Icon type={Icons.Ionicons} name="lock-closed" size={18} color={Colors.black} />
 					</View>
@@ -183,15 +197,19 @@ const PostButton = ({post, openComment, openMore}) => {
 }
 
 const Caption = ({post, seeMore, handleSeeMore}) => {
+	const highlightHashtag = text => {
+		return useHighlightHashtag(text)
+	}
+
 	return (
 		<TouchableOpacity
 			style={{marginHorizontal: 24, marginBottom: 8}}
 			onPress={handleSeeMore}
 			activeOpacity={1}>
 			<CustomText>
-				{seeMore ? post.caption : post.caption.slice(0, 100)}
-				{!seeMore && post.caption.length > 100 && (
-					<CustomText style={{color: Colors.gray}}> ... more</CustomText>
+				{seeMore ? highlightHashtag(post.caption) : highlightHashtag(post.caption.slice(0, 100))}
+				{!seeMore && post.caption.length >= 100 && (
+					<CustomText style={{color: Colors.gray}}> ...more</CustomText>
 				)}
 			</CustomText>
 		</TouchableOpacity>
@@ -233,7 +251,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		position: 'absolute',
-		top: 420 - 40,
+		bottom: -10,
 		left: 30,
 		borderRadius: 30,
 		padding: 16,

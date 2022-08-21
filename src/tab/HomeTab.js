@@ -1,8 +1,7 @@
-import React, {useRef, useState, createContext, useCallback} from 'react'
+import React, {useRef, useState, createContext, useCallback, useEffect} from 'react'
 import {StyleSheet, View, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import {useBackHandler} from '../hooks/useBackHandler.hook'
 import {FlatList} from 'react-native-gesture-handler'
-import posts from '../data/posts'
 import Colors from '../utils/Colors'
 import Post from '../components/Post'
 import Icon, {Icons} from '../utils/Icons'
@@ -12,6 +11,7 @@ import {CustomText} from '../utils/CustomComponents'
 import {useDispatch} from 'react-redux'
 import Comment from '../components/Comment'
 import CommentBox from '../components/CommentBox'
+import {auth, db, onSnapshot, collection} from '../firebase/firebase-config'
 
 const MARGIN = 24
 const PADDING = 16
@@ -19,13 +19,37 @@ const PADDING = 16
 export const BottomSheetContext = createContext()
 
 const HomeTab = ({navigation}) => {
-	const [currentPost, setCurrentPost] = useState()
+	const [posts, setPosts] = useState([])
+	const [indexCurrentPost, setIndexCurrentPost] = useState()
 	const [indexCommentSheet, setIndexCommentSheet] = useState(-1)
 	const [indexMoreSheet, setIndexMoreSheet] = useState(-1)
 	const commentSheetRef = useRef(null)
 	const moreSheetRef = useRef(null)
 	const flatListRef = useRef(null)
 	const dispatch = useDispatch()
+
+	useEffect(() => {
+		const postsDocRef = collection(db, 'posts')
+		const unsubscribePosts = onSnapshot(postsDocRef, posts => {
+			const allPosts = posts.docs.map(post => {
+				return {...post.data(), id: post.id}
+			})
+
+			const displayPosts = allPosts.filter(post => {
+				if (auth.currentUser) {
+					return !post.is_private || (post.is_private && post.owner_email == auth.currentUser.email)
+				} else {
+					return !post.is_private
+				}
+			})
+
+			setPosts(displayPosts)
+		})
+
+		return () => {
+			unsubscribePosts()
+		}
+	}, [])
 
 	/**
 	 * Close the BottomSheet if it is opening when Back button is pressed
@@ -68,24 +92,25 @@ const HomeTab = ({navigation}) => {
 		navigation.push('NewPostScreen')
 	}, [])
 
-	const openComment = useCallback(post => {
+	const openComment = useCallback(index => {
 		setTabBarStyle(0, 150)
 		commentSheetRef.current.snapToIndex(0)
-		setTimeout(() => setCurrentPost(post))
+		setTimeout(() => setIndexCurrentPost(index))
 	}, [])
 
-	const openMore = useCallback(post => {
+	const openMore = useCallback(index => {
 		setTabBarStyle(0, 150)
 		moreSheetRef.current.snapToIndex(0)
-		setTimeout(() => setCurrentPost(post))
+		setTimeout(() => setIndexCurrentPost(index))
 	}, [])
 
 	/**
-	 * Show Tabbar when starting to close the BottomSheet
+	 * Show Tabbar and set currentPost = undefined when starting to close the BottomSheet
 	 */
 	const onAnimate = useCallback((_, toIndex) => {
 		if (toIndex === -1) {
 			setTabBarStyle(1, 0)
+			setIndexCurrentPost(-1)
 		}
 	}, [])
 
@@ -113,7 +138,13 @@ const HomeTab = ({navigation}) => {
 				ref={flatListRef}
 				contentContainerStyle={{paddingBottom: 146, paddingTop: 4}}
 				data={posts.sort((p1, p2) => p2.created_at - p1.created_at)}
-				renderItem={({item}) => <Post post={item} openComment={openComment} openMore={openMore} />}
+				renderItem={({item, index}) => (
+					<Post
+						post={item}
+						openComment={() => openComment(index)}
+						openMore={() => openMore(index)}
+					/>
+				)}
 				keyExtractor={(_, index) => index}
 				initialNumToRender={24}
 				showsHorizontalScrollIndicator={false}
@@ -121,7 +152,11 @@ const HomeTab = ({navigation}) => {
 			/>
 
 			{/* BottomSheet for 'Comment' */}
-			<BottomSheetContext.Provider value={{indexSheet: indexCommentSheet}}>
+			<BottomSheetContext.Provider
+				value={{
+					indexSheet: indexCommentSheet,
+					postId: posts[indexCurrentPost] ? posts[indexCurrentPost].id : undefined,
+				}}>
 				<BottomSheet
 					ref={commentSheetRef}
 					index={-1}
@@ -131,7 +166,7 @@ const HomeTab = ({navigation}) => {
 					backdropComponent={renderBackdrop}
 					onAnimate={onAnimate}
 					onChange={index => setIndexCommentSheet(index)}>
-					{currentPost && (
+					{posts[indexCurrentPost] && (
 						<View style={styles.commentContainer}>
 							<View style={styles.commentHeader}>
 								<CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>
@@ -147,7 +182,9 @@ const HomeTab = ({navigation}) => {
 								</TouchableOpacity>
 							</View>
 							<BottomSheetFlatList
-								data={currentPost.comments.sort((c1, c2) => c1.commented_at - c2.commented_at)}
+								data={posts[indexCurrentPost].comments.sort(
+									(c1, c2) => c1.commented_at - c2.commented_at,
+								)}
 								renderItem={({item}) => <Comment comment={item} />}
 								keyExtractor={(_, index) => index}
 								initialNumToRender={24}

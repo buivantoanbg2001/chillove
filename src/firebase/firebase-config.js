@@ -27,8 +27,9 @@ import {
 	arrayRemove,
 	orderBy,
 	Timestamp,
+	initializeFirestore,
 } from 'firebase/firestore'
-import {getStorage, ref, uploadBytes} from 'firebase/storage'
+import {getStorage, ref, uploadBytes, getDownloadURL, UploadResult} from 'firebase/storage'
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyAW2bpiCsQStH_U-sYUYaovXmEcO5W5v28',
@@ -40,11 +41,14 @@ const firebaseConfig = {
 }
 
 // Initialize Firebase
-getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 
-const auth = getAuth()
-const db = getFirestore()
-const storage = getStorage()
+const auth = getAuth(app)
+// const db = getFirestore()
+const db = initializeFirestore(app, {
+	experimentalForceLongPolling: true,
+})
+const storage = getStorage(app)
 
 export {
 	auth,
@@ -75,4 +79,6 @@ export {
 	storage,
 	ref,
 	uploadBytes,
+	getDownloadURL,
+	UploadResult,
 }

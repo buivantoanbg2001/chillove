@@ -1,8 +1,8 @@
 const posts = [
 	{
 		caption:
-			"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum",
-		image_urls: [
+			"Lorem Ipsum #birthday is simply dummy text of the printing and typesetting industry. Lorem Ipsum #halloween has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum #birthday",
+		images: [
 			'https://i.imgur.com/nBUbNNq.png',
 			'https://i.imgur.com/A44J0tz.jpg',
 			'https://i.imgur.com/nBUbNNq.png',
@@ -10,7 +10,7 @@ const posts = [
 			'https://i.imgur.com/nBUbNNq.png',
 			'https://i.imgur.com/A44J0tz.jpg',
 		],
-		private: true,
+		is_private: true,
 		owner_email: 'buivantoanbg2001@gmail.com',
 		created_at: 'Sep 25, 2020',
 		comments: [
@@ -30,9 +30,9 @@ const posts = [
 		hashtags: ['#birthday', '#halloween'],
 	},
 	{
-		caption: 'Hello hello',
-		image_urls: ['https://i.imgur.com/A44J0tz.jpg', 'https://i.imgur.com/nBUbNNq.png'],
-		private: false,
+		caption: 'Hello hello #christmas #christmas',
+		images: ['https://i.imgur.com/A44J0tz.jpg', 'https://i.imgur.com/nBUbNNq.png'],
+		is_private: false,
 		owner_email: 'linhngocbh2001@gmail.com',
 		created_at: 'Sep 25, 2020',
 		comments: [
@@ -50,9 +50,9 @@ const posts = [
 		hashtags: ['#christmas', '#valentine', '#christmas', '#valentine'],
 	},
 	{
-		caption: 'Hello hello',
-		image_urls: ['https://i.imgur.com/nBUbNNq.png', 'https://i.imgur.com/A44J0tz.jpg'],
-		private: false,
+		caption: 'Hello hello #valentine',
+		images: ['https://i.imgur.com/nBUbNNq.png', 'https://i.imgur.com/A44J0tz.jpg'],
+		is_is_private: false,
 		owner_email: 'buivantoanbg2001@gmail.com',
 		created_at: 'Sep 25, 2020',
 		comments: [

@@ -30,6 +30,10 @@ const Colors = {
 
 	lychee: '#fff7eb',
 
+	red: 'rgb(255,109,106)',
+	green: '#00c9bb',
+	blue: '#8579e5',
+
 	// pomelo: '#fec5c4',
 	// grape_fruit: '#ff6d6a',
 

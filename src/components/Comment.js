@@ -5,6 +5,7 @@ import Colors from '../utils/Colors'
 import {CustomText, CustomView} from '../utils/CustomComponents'
 import Icon, {Icons} from '../utils/Icons'
 import Divider from '../utils/Divider'
+import TimeRelative from '../utils/TimeRelative'
 
 const {width, height} = Dimensions.get('window')
 const PADDING = 16
@@ -58,9 +59,10 @@ const Comment = ({comment}) => {
 								marginTop: MARGIN / 2,
 								marginBottom: PADDING,
 							}}>
-							<CustomText style={{fontSize: 15, color: Colors.gray, marginRight: 10}}>
-								{comment.commented_at}
-							</CustomText>
+							<TimeRelative
+								style={{fontSize: 15, color: Colors.gray, marginRight: 10}}
+								time={comment.commented_at}
+							/>
 							<Icon type={Icons.Feather} name="calendar" size={15} color={Colors.gray} />
 						</View>
 					</View>
