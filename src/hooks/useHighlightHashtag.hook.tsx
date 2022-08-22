@@ -3,7 +3,7 @@ import Colors from '../utils/Colors'
 import {CustomText} from '../utils/CustomComponents'
 
 const useHighlightHashtag = (text: string) => {
-	const regexHashtag = /^#[0-9a-z_]*[0-9a-z]+[0-9a-z_]*$/g
+	const regexHashtag = /^#[0-9a-zA-Z_]*[0-9a-zA-Z]+[0-9a-zA-Z_]*$/g
 
 	const highLightHashtag = (line: string) => {
 		const word_array = line.split(' ')

@@ -20,6 +20,25 @@ Animatable.initializeRegistryWithDefinitions({
 		0.75: {transform: [{scale: (2 * height) / width}, {rotate: '270deg'}]},
 		1: {transform: [{scale: 1}, {rotate: '360deg'}]},
 	},
+	// 'fade-bounce-in': {
+	// 	0: {opacity: 0.2, transform: [{scale: 0.2}]},
+	// 	0.25: {opacity: 0.5, transform: [{scale: 0.5}]},
+	// 	0.5: {opacity: 0.7, transform: [{scale: 0.9}]},
+	// 	0.6: {opacity: 0.8, transform: [{scale: 1.2}]},
+	// 	0.8: {opacity: 0.9, transform: [{scale: 0.95}]},
+	// 	0.9: {opacity: 0.95, transform: [{scale: 1.05}]},
+	// 	1: {opacity: 1, transform: [{scale: 1}]},
+	// },
+	// 'zoom-fade-out': {
+	// 	0: {opacity: 1, transform: [{scale: 1}]},
+	// 	0.5: {opacity: 0.3, transform: [{scale: 0.5}]},
+	// 	0.7: {opacity: 0, transform: [{scale: 0.4}]},
+	// 	1: {opacity: 0, transform: [{scale: 0}]},
+	// },
+	'short-slide-in-down': {
+		0: {transform: [{translateY: -30}]},
+		1: {transform: [{translateY: 30}]},
+	},
 })
 
 const TabArr = [

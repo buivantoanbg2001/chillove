@@ -12,6 +12,7 @@ import {
 	Dimensions,
 	Platform,
 	Text,
+	Keyboard,
 } from 'react-native'
 import Colors from '../utils/Colors'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker'
@@ -66,11 +67,13 @@ const NewPostScreen = (props: Props) => {
 		setMessages(messages => messages.filter(current => current.id !== message.id))
 	}
 
-	const regexHashtag = /^#[0-9a-z_]*[0-9a-z]+[0-9a-z_]*$/g
+	const regexHashtag = /^#[0-9a-zA-Z_]*[0-9a-zA-Z]+[0-9a-zA-Z_]*$/g
 
 	const highlightHashtag = () => <>{useHighlightHashtag(caption)}</>
 
 	const addNewPost = async () => {
+		Keyboard.dismiss()
+
 		const hashtagSet = [
 			...new Set(
 				caption
@@ -83,9 +86,8 @@ const NewPostScreen = (props: Props) => {
 		let promises: Promise<UploadResult>[] = []
 		for (let i = 0; i < postImages.length; i++) {
 			const imageRef = ref(storage, uuid.v4().toString())
-			const image = await fetch(postImages[i].path)
-			const blob = await image.blob()
-			promises.push(uploadBytes(imageRef, blob))
+			const image = await (await fetch(postImages[i].path)).blob()
+			promises.push(uploadBytes(imageRef, image))
 		}
 		Promise.all(promises)
 			.then(snapshots => {
@@ -114,7 +116,7 @@ const NewPostScreen = (props: Props) => {
 									content: 'Add new post successfully',
 									type: {success: true},
 								})
-								// setTimeout(() => navigation.goBack(), 4000)
+								setTimeout(() => navigation.goBack(), 4000)
 							})
 						} else {
 							/**
@@ -143,6 +145,7 @@ const NewPostScreen = (props: Props) => {
 		 * @success navigation.goBack();
 		 * @error Do not do anything
 		 */
+		navigation.goBack()
 	}
 
 	const openGallery = () => {
@@ -169,7 +172,7 @@ const NewPostScreen = (props: Props) => {
 		<SafeAreaView style={styles.container}>
 			<Animatable.Image
 				source={{
-					uri: 'https://i.imgur.com/obASxu0.jpg',
+					uri: 'https://firebasestorage.googleapis.com/v0/b/chillove.appspot.com/o/background%2Fbackground.jpg?alt=media&token=b275b8a1-b713-4ac3-a53e-df6383946c01',
 				}}
 				style={StyleSheet.absoluteFillObject}
 				blurRadius={50}
@@ -308,11 +311,11 @@ type HeaderProps = {
 const Header = ({addNewPost, goBack}: HeaderProps) => {
 	return (
 		<View style={styles.header}>
-			<TouchableOpacity onPress={goBack}>
+			<TouchableOpacity onPress={goBack} style={{paddingHorizontal: 24, paddingVertical: 12}}>
 				<Icon type={Icons.Octicons} name="chevron-left" size={34} color={Colors.black} />
 			</TouchableOpacity>
 			<CustomText style={styles.headerText}>New Post</CustomText>
-			<TouchableOpacity onPress={addNewPost}>
+			<TouchableOpacity onPress={addNewPost} style={{paddingHorizontal: 24, paddingVertical: 12}}>
 				<Icon type={Icons.Octicons} name="check" size={34} color={Colors.black} />
 			</TouchableOpacity>
 		</View>
@@ -348,7 +351,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		flexDirection: 'row',
-		paddingHorizontal: 24,
 		height: 90,
 	},
 	caption: {

@@ -119,7 +119,7 @@ const HomeTab = ({navigation}) => {
 			{/* Image Background */}
 			<Animatable.Image
 				source={{
-					uri: 'https://i.imgur.com/obASxu0.jpg',
+					uri: 'https://firebasestorage.googleapis.com/v0/b/chillove.appspot.com/o/background%2Fbackground.jpg?alt=media&token=b275b8a1-b713-4ac3-a53e-df6383946c01',
 				}}
 				style={StyleSheet.absoluteFillObject}
 				blurRadius={50}
