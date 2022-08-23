@@ -1,38 +1,70 @@
 import React, {useRef, useState, createContext, useCallback, useEffect} from 'react'
-import {StyleSheet, View, SafeAreaView, Image, TouchableOpacity} from 'react-native'
+import {StyleSheet, View, SafeAreaView, Image, TouchableOpacity, Platform} from 'react-native'
 import {useBackHandler} from '../hooks/useBackHandler.hook'
 import {FlatList} from 'react-native-gesture-handler'
 import Colors from '../utils/Colors'
 import Post from '../components/Post'
 import Icon, {Icons} from '../utils/Icons'
 import * as Animatable from 'react-native-animatable'
-import BottomSheet, {BottomSheetFlatList, BottomSheetBackdrop} from '@gorhom/bottom-sheet'
+import BottomSheet, {
+	BottomSheetFlatList,
+	BottomSheetBackdrop,
+	BottomSheetBackdropProps,
+} from '@gorhom/bottom-sheet'
 import {CustomText} from '../utils/CustomComponents'
 import {useDispatch} from 'react-redux'
 import Comment from '../components/Comment'
 import CommentBox from '../components/CommentBox'
-import {auth, db, onSnapshot, collection} from '../firebase/firebase-config'
+import {
+	auth,
+	db,
+	onSnapshot,
+	collection,
+	DocumentReference,
+	CollectionReference,
+	Timestamp,
+} from '../firebase/firebase-config'
+import {useNavigation} from '@react-navigation/native'
+import {StackNavigationProp} from '@react-navigation/stack'
+import {PostType, CommentType} from '../models/post.model'
 
 const MARGIN = 24
 const PADDING = 16
 
-export const BottomSheetContext = createContext()
+export const BottomSheetContext = createContext<{indexSheet: number; postId: string | undefined}>({
+	indexSheet: -1,
+	postId: undefined,
+})
 
-const HomeTab = ({navigation}) => {
-	const [posts, setPosts] = useState([])
-	const [indexCurrentPost, setIndexCurrentPost] = useState()
-	const [indexCommentSheet, setIndexCommentSheet] = useState(-1)
-	const [indexMoreSheet, setIndexMoreSheet] = useState(-1)
-	const commentSheetRef = useRef(null)
-	const moreSheetRef = useRef(null)
-	const flatListRef = useRef(null)
+type Props = {}
+
+type PostRenderType = {
+	item: PostType
+	index: number
+}
+
+type CommentRenderType = {
+	item: CommentType
+	index: number
+}
+
+const HomeTab = (props: Props) => {
+	const [posts, setPosts] = useState<PostType[]>([])
+	const [indexCurrentPostComment, setIndexCurrentPostComment] = useState<number>(-1)
+	const [indexCurrentPostMore, setIndexCurrentPostMore] = useState<number>(-1)
+	const [indexCommentSheet, setIndexCommentSheet] = useState<number>(-1)
+	const [indexMoreSheet, setIndexMoreSheet] = useState<number>(-1)
+	const commentSheetRef = useRef<BottomSheet>(null)
+	const moreSheetRef = useRef<BottomSheet>(null)
+	const flatListRef = useRef<FlatList>(null)
 	const dispatch = useDispatch()
+	const navigation = useNavigation<StackNavigationProp<any>>()
 
 	useEffect(() => {
-		const postsDocRef = collection(db, 'posts')
-		const unsubscribePosts = onSnapshot(postsDocRef, posts => {
-			const allPosts = posts.docs.map(post => {
-				return {...post.data(), id: post.id}
+		const postsDocRef = collection(db, 'posts') as CollectionReference<PostType>
+		const unsubscribePosts = onSnapshot<PostType>(postsDocRef, posts => {
+			const allPosts: PostType[] = posts.docs.map(post => {
+				return {...post.data(), id: post.id.toString()}
 			})
 
 			const displayPosts = allPosts.filter(post => {
@@ -56,10 +88,14 @@ const HomeTab = ({navigation}) => {
 	 */
 	useBackHandler(() => {
 		if (indexMoreSheet >= 0) {
-			moreSheetRef.current.close()
+			if (moreSheetRef.current) {
+				moreSheetRef.current.close()
+			}
 			return true
 		} else if (indexCommentSheet >= 0) {
-			commentSheetRef.current.close()
+			if (commentSheetRef.current) {
+				commentSheetRef.current.close()
+			}
 			return true
 		}
 		return false
@@ -70,11 +106,13 @@ const HomeTab = ({navigation}) => {
 	 * @disappearsOnIndex -0.5: cheat =), it will send a bug if we set -1
 	 */
 	const renderBackdrop = useCallback(
-		props => <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-0.5} />,
+		(props: BottomSheetBackdropProps) => (
+			<BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-0.5} />
+		),
 		[],
 	)
 
-	const setTabBarStyle = useCallback((opacity, translateY) => {
+	const setTabBarStyle = useCallback((opacity: number, translateY: number) => {
 		dispatch({
 			type: 'SET_TAB_BAR_STYLE',
 			payload: {
@@ -85,34 +123,47 @@ const HomeTab = ({navigation}) => {
 	}, [])
 
 	const scrollToTop = useCallback(() => {
-		flatListRef.current.scrollToOffset({animated: true, offset: 0})
+		if (flatListRef.current) {
+			flatListRef.current.scrollToOffset({animated: true, offset: 0})
+		}
 	}, [])
 
 	const handleAddNewPost = useCallback(() => {
 		navigation.push('NewPostScreen')
 	}, [])
 
-	const openComment = useCallback(index => {
+	const openComment = useCallback((index: number) => {
 		setTabBarStyle(0, 150)
-		commentSheetRef.current.snapToIndex(0)
-		setTimeout(() => setIndexCurrentPost(index))
+		if (commentSheetRef.current) {
+			commentSheetRef.current.snapToIndex(0)
+		}
+		setTimeout(() => setIndexCurrentPostComment(index))
 	}, [])
 
-	const openMore = useCallback(index => {
+	const openMore = useCallback((index: number) => {
 		setTabBarStyle(0, 150)
-		moreSheetRef.current.snapToIndex(0)
-		setTimeout(() => setIndexCurrentPost(index))
+		if (moreSheetRef.current) {
+			moreSheetRef.current.snapToIndex(0)
+		}
+		setTimeout(() => setIndexCurrentPostMore(index))
 	}, [])
 
 	/**
 	 * Show Tabbar and set currentPost = undefined when starting to close the BottomSheet
 	 */
-	const onAnimate = useCallback((_, toIndex) => {
+	const onAnimate = useCallback((_: number, toIndex: number) => {
 		if (toIndex === -1) {
 			setTabBarStyle(1, 0)
-			setIndexCurrentPost(-1)
+			setIndexCurrentPostComment(-1)
+			setIndexCurrentPostMore(-1)
 		}
 	}, [])
+
+	const renderPostItem = ({item, index}: PostRenderType) => (
+		<Post post={item} openComment={() => openComment(index)} openMore={() => openMore(index)} />
+	)
+
+	const renderCommentItem = ({item, index}: CommentRenderType) => <Comment comment={item} />
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -137,16 +188,20 @@ const HomeTab = ({navigation}) => {
 			<FlatList
 				ref={flatListRef}
 				contentContainerStyle={{paddingBottom: 146, paddingTop: 4}}
-				data={posts.sort((p1, p2) => p2.created_at - p1.created_at)}
-				renderItem={({item, index}) => (
-					<Post
-						post={item}
-						openComment={() => openComment(index)}
-						openMore={() => openMore(index)}
-					/>
-				)}
-				keyExtractor={(_, index) => index}
-				initialNumToRender={24}
+				data={posts
+					.sort(
+						(p1, p2) =>
+							new Date(
+								p2.created_at.seconds * 1000 + p2.created_at.nanoseconds / 1000000,
+							).getTime() -
+							new Date(
+								p1.created_at.seconds * 1000 + p1.created_at.nanoseconds / 1000000,
+							).getTime(),
+					)
+					.slice(0, 2)}
+				renderItem={renderPostItem}
+				keyExtractor={(_, index) => index.toString()}
+				initialNumToRender={10}
 				showsHorizontalScrollIndicator={false}
 				nestedScrollEnabled
 			/>
@@ -155,7 +210,7 @@ const HomeTab = ({navigation}) => {
 			<BottomSheetContext.Provider
 				value={{
 					indexSheet: indexCommentSheet,
-					postId: posts[indexCurrentPost] ? posts[indexCurrentPost].id : undefined,
+					postId: posts[indexCurrentPostComment] ? posts[indexCurrentPostComment].id : undefined,
 				}}>
 				<BottomSheet
 					ref={commentSheetRef}
@@ -166,34 +221,38 @@ const HomeTab = ({navigation}) => {
 					backdropComponent={renderBackdrop}
 					onAnimate={onAnimate}
 					onChange={index => setIndexCommentSheet(index)}>
-					{posts[indexCurrentPost] && (
-						<View style={styles.commentContainer}>
-							<View style={styles.commentHeader}>
-								<CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>
-									Comments
-								</CustomText>
-								<TouchableOpacity>
-									<Icon
-										type={Icons.Ionicons}
-										name="ellipsis-horizontal"
-										size={30}
-										color={Colors.black}
-									/>
-								</TouchableOpacity>
-							</View>
+					<View style={styles.commentContainer}>
+						<View style={styles.commentHeader}>
+							<CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>Comments</CustomText>
+							<TouchableOpacity>
+								<Icon
+									type={Icons.Ionicons}
+									name="ellipsis-horizontal"
+									size={30}
+									color={Colors.black}
+								/>
+							</TouchableOpacity>
+						</View>
+						{posts[indexCurrentPostComment] && (
 							<BottomSheetFlatList
-								data={posts[indexCurrentPost].comments.sort(
-									(c1, c2) => c1.commented_at - c2.commented_at,
+								data={posts[indexCurrentPostComment].comments.sort(
+									(c1, c2) =>
+										new Date(
+											c1.commented_at.seconds * 1000 + c1.commented_at.nanoseconds / 1000000,
+										).getTime() -
+										new Date(
+											c2.commented_at.seconds * 1000 + c2.commented_at.nanoseconds / 1000000,
+										).getTime(),
 								)}
-								renderItem={({item}) => <Comment comment={item} />}
-								keyExtractor={(_, index) => index}
+								renderItem={renderCommentItem}
+								keyExtractor={(_, index) => index.toString()}
 								initialNumToRender={24}
 								showsHorizontalScrollIndicator={false}
 								nestedScrollEnabled
 								contentContainerStyle={{paddingBottom: 120}}
 							/>
-						</View>
-					)}
+						)}
+					</View>
 				</BottomSheet>
 			</BottomSheetContext.Provider>
 
@@ -205,13 +264,21 @@ const HomeTab = ({navigation}) => {
 				snapPoints={['20%']}
 				backdropComponent={renderBackdrop}
 				onAnimate={onAnimate}
-				onChange={index => setIndexMoreSheet(index)}></BottomSheet>
+				onChange={index => setIndexMoreSheet(index)}>
+				<></>
+			</BottomSheet>
 		</SafeAreaView>
 	)
 }
 
-const Header = ({handleAddNewPost, scrollToTop}) => {
+type HeaderType = {
+	handleAddNewPost: () => void
+	scrollToTop: () => void
+}
+
+const Header = ({handleAddNewPost, scrollToTop}: HeaderType) => {
 	const [disabled, setDisabled] = useState(false)
+
 	return (
 		<View style={styles.header}>
 			<TouchableOpacity onPress={scrollToTop} activeOpacity={0.5}>

@@ -1,22 +1,32 @@
 import React, {useState} from 'react'
 import {StyleSheet, Text, View, Image, Dimensions, TouchableOpacity} from 'react-native'
-import {useSelector} from 'react-redux'
+import {useAppSelector} from '../hooks/redux.hook'
 import Colors from '../utils/Colors'
 import {CustomText, CustomView} from '../utils/CustomComponents'
 import Icon, {Icons} from '../utils/Icons'
 import Divider from '../utils/Divider'
 import TimeRelative from '../utils/TimeRelative'
+import {CommentType} from '../models/post.model'
+import {UserType} from '../models/user.model'
+import _ from 'lodash'
 
 const {width, height} = Dimensions.get('window')
 const PADDING = 16
 const MARGIN = 24
 const AVATAR_SIZE = 56
 
-const Comment = ({comment}) => {
+type Props = {
+	comment: CommentType
+}
+
+const Comment = ({comment}: Props) => {
+	console.log('render Comment')
 	const [seeMore, setSeeMore] = useState(false)
 
-	const users = useSelector(state => state.usersReducer)
-	const user = users[comment.owner_email]
+	const users: UserType[] = useAppSelector(state => state.usersReducer)
+	const user = users.find(user => user.email == comment.owner_email)
+
+	if (user == undefined) return <></>
 
 	const handleSeeMore = () => {
 		setSeeMore(!seeMore)
@@ -73,7 +83,11 @@ const Comment = ({comment}) => {
 	)
 }
 
-export default Comment
+export default React.memo(Comment, (prev, next) => {
+	return _.isEqual(prev.comment, next.comment)
+})
+
+// export default Comment
 
 const styles = StyleSheet.create({
 	container: {

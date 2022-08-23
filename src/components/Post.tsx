@@ -1,42 +1,49 @@
 import React, {useState, useRef} from 'react'
-import {StyleSheet, View, Image, Dimensions, TouchableOpacity, Animated} from 'react-native'
+import {
+	StyleSheet,
+	View,
+	Image,
+	Dimensions,
+	TouchableOpacity,
+	Animated,
+	NativeSyntheticEvent,
+} from 'react-native'
 import Colors from '../utils/Colors'
-import {useSelector} from 'react-redux'
+import {useAppSelector} from '../hooks/redux.hook'
 import {CustomText} from '../utils/CustomComponents'
 import PaginationDot from 'react-native-animated-pagination-dot'
 import Icon, {Icons} from '../utils/Icons'
 import FastImage from 'react-native-fast-image'
 import useHighlightHashtag from '../hooks/useHighlightHashtag.hook'
-import Video from 'react-native-video'
 import TimeRelative from '../utils/TimeRelative'
+import {PostType} from '../models/post.model'
+import {UserType} from '../models/user.model'
+import _ from 'lodash'
 
 const {width} = Dimensions.get('window')
 const PADDING = 16
 const MARGIN = 24
 
-const Post = ({post, openComment, openMore}) => {
+type Props = {
+	post: PostType
+	openComment: () => void
+	openMore: () => void
+}
+
+const Post = ({post, openComment, openMore}: Props) => {
 	const [seeMore, setSeeMore] = useState(false)
 
-	const users = useSelector(state => state.usersReducer)
-	const user = users[post.owner_email]
+	const users: UserType[] = useAppSelector(state => state.usersReducer)
+	const user = users.find(user_item => user_item.email == post.owner_email)
+
+	if (user == undefined) return <></>
 
 	const handleSeeMore = () => {
 		setSeeMore(!seeMore)
 	}
 
-	return (
-		<AestheticMode
-			post={post}
-			user={user}
-			seeMore={seeMore}
-			handleSeeMore={handleSeeMore}
-			openComment={openComment}
-			openMore={openMore}
-		/>
-	)
-}
+	console.log('render Post')
 
-const AestheticMode = ({post, user, seeMore, handleSeeMore, openComment, openMore}) => {
 	return (
 		<View style={styles.container}>
 			<Image
@@ -55,13 +62,17 @@ const AestheticMode = ({post, user, seeMore, handleSeeMore, openComment, openMor
 	)
 }
 
-const PostImages = ({post}) => {
+type PostImagesProps = {
+	post: PostType
+}
+
+const PostImages = ({post}: PostImagesProps) => {
 	if (post.images.length == 0) return <></>
 
 	const [currentImage, setCurrentImage] = useState(0)
 	const scrollX = useRef(new Animated.Value(0)).current
 
-	let onScroll = e => {
+	let onScroll = (e: NativeSyntheticEvent<any>) => {
 		let pageNumber = Math.min(
 			Math.max(Math.floor(e.nativeEvent.contentOffset.x / (width - 24 * 2) + 0.5), 0),
 			post.images.length,
@@ -113,7 +124,7 @@ const PostImages = ({post}) => {
 						</Animated.View>
 					)
 				}}
-				keyExtractor={(_, index) => index}
+				keyExtractor={(_, index) => index.toString()}
 				pagingEnabled
 				initialNumToRender={24}
 				showsHorizontalScrollIndicator={false}
@@ -144,7 +155,12 @@ const PostImages = ({post}) => {
 	)
 }
 
-const PostInfo = ({post, user}) => {
+type PostInfoProps = {
+	post: PostType
+	user: UserType
+}
+
+const PostInfo = ({post, user}: PostInfoProps) => {
 	return (
 		<View style={styles.postInfo}>
 			<View style={styles.avatar_container}>
@@ -165,7 +181,13 @@ const PostInfo = ({post, user}) => {
 	)
 }
 
-const PostButton = ({post, openComment, openMore}) => {
+type PostButtonProps = {
+	post: PostType
+	openComment: () => void
+	openMore: () => void
+}
+
+const PostButton = ({post, openComment, openMore}: PostButtonProps) => {
 	return (
 		<View style={styles.postButton}>
 			<View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -196,8 +218,14 @@ const PostButton = ({post, openComment, openMore}) => {
 	)
 }
 
-const Caption = ({post, seeMore, handleSeeMore}) => {
-	const highlightHashtag = text => {
+type CaptionProps = {
+	post: PostType
+	seeMore: boolean
+	handleSeeMore: () => void
+}
+
+const Caption = ({post, seeMore, handleSeeMore}: CaptionProps) => {
+	const highlightHashtag = (text: string) => {
 		return useHighlightHashtag(text)
 	}
 
@@ -216,7 +244,11 @@ const Caption = ({post, seeMore, handleSeeMore}) => {
 	)
 }
 
-const Hashtag = ({post}) => {
+type HashtagProps = {
+	post: PostType
+}
+
+const Hashtag = ({post}: HashtagProps) => {
 	return (
 		<View style={styles.hashtag}>
 			{post.hashtags.map((hashtag, index) => (
@@ -228,7 +260,10 @@ const Hashtag = ({post}) => {
 	)
 }
 
-export default Post
+export default React.memo(Post, (prev, next) => {
+	// Because 'comments' changes not affect to rendering Post, so we not to compare the 'comments'
+	return _.isEqual({...prev.post, comments: undefined}, {...next.post, comments: undefined})
+})
 
 const styles = StyleSheet.create({
 	container: {

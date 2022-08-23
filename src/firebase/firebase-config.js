@@ -28,6 +28,8 @@ import {
 	orderBy,
 	Timestamp,
 	initializeFirestore,
+	DocumentReference,
+	CollectionReference,
 } from 'firebase/firestore'
 import {getStorage, ref, uploadBytes, getDownloadURL, UploadResult} from 'firebase/storage'
 
@@ -81,4 +83,6 @@ export {
 	uploadBytes,
 	getDownloadURL,
 	UploadResult,
+	DocumentReference,
+	CollectionReference,
 }
