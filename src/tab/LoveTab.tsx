@@ -8,6 +8,7 @@ import FastImage from 'react-native-fast-image'
 import {useAppSelector} from '../hooks/redux.hook'
 import {UserType} from '../models/user.model'
 import {intervalToDuration} from 'date-fns'
+import {useIsFocused} from '@react-navigation/native'
 
 const delay = [0, 400, 1200, 900, 300, 500]
 const iterationDelay = [0, 100, 50, 120, 10, 80]
@@ -18,6 +19,8 @@ const loveBegin = new Date('2018-07-23T12:00:00Z')
 const LoveTab: React.FC = () => {
 	console.log('render LoveTab')
 
+	const isFocused = useIsFocused()
+
 	const users: UserType[] = useAppSelector(state => state.usersReducer)
 
 	const user = users.find(user_item =>
@@ -27,7 +30,7 @@ const LoveTab: React.FC = () => {
 		auth.currentUser ? user_item.email != auth.currentUser.email : 'linhngocbh2001@gmail.com',
 	)
 
-	if (user == null || user_lover == null) return <></>
+	if (user == null || user_lover == null || !isFocused) return <></>
 
 	return (
 		<SafeAreaView style={styles.container}>
