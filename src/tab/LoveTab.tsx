@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useMemo} from 'react'
 import {SafeAreaView, StyleSheet, Text, View, ScrollView} from 'react-native'
 import Colors from '../utils/Colors'
 import * as Animatable from 'react-native-animatable'
@@ -105,9 +105,9 @@ const LoveTime: React.FC = () => {
 		])
 	}
 
-	return (
-		<View style={styles.loveTimeContainer}>
-			{loveTime.map((time, index) => (
+	const renderLoveTimeItems = (time: number, index: number) =>
+		useMemo(() => {
+			return (
 				<Animatable.View
 					key={index}
 					animation="short-slide-in-down"
@@ -133,7 +133,12 @@ const LoveTime: React.FC = () => {
 					</View>
 					<Text style={styles.normalText}>{timeDefinitions[index] + (time > 1 ? 's' : '')}</Text>
 				</Animatable.View>
-			))}
+			)
+		}, [time])
+
+	return (
+		<View style={styles.loveTimeContainer}>
+			{loveTime.map((time, index) => renderLoveTimeItems(time, index))}
 		</View>
 	)
 }

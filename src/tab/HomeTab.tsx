@@ -25,18 +25,11 @@ import {CustomText} from '../utils/CustomComponents'
 import {useDispatch} from 'react-redux'
 import Comment from '../components/Comment'
 import CommentBox from '../components/CommentBox'
-import {
-	auth,
-	db,
-	onSnapshot,
-	collection,
-	DocumentReference,
-	CollectionReference,
-	Timestamp,
-} from '../firebase/firebase-config'
+import {auth, db, onSnapshot, collection, CollectionReference} from '../firebase/firebase-config'
 import {useNavigation} from '@react-navigation/native'
 import {StackNavigationProp} from '@react-navigation/stack'
 import {PostType, CommentType} from '../models/post.model'
+import useKeyboard from '../hooks/useKeyboard.hook'
 
 const MARGIN = 24
 const PADDING = 16
@@ -69,17 +62,13 @@ const HomeTab = (props: Props) => {
 	const flatListRef = useRef<FlatList>(null)
 	const dispatch = useDispatch()
 	const navigation = useNavigation<StackNavigationProp<any>>()
-
-	useEffect(() => {
-		setTabBarStyle(0, 150)
-	}, [])
+	const isKeyboardVisible = useKeyboard()
 
 	const getData = () => {
 		setIsLoadingMore(true)
 		setTimeout(() => {
-			// setLimitIndexVisiblePost(limitIndexVisiblePost + 2)
 			setIsLoadingMore(false)
-		}, 200)
+		}, 1000)
 	}
 
 	useEffect(() => {
@@ -135,12 +124,18 @@ const HomeTab = (props: Props) => {
 	/**
 	 * Render the Backdrop for BottomSheet
 	 * @disappearsOnIndex -0.5: cheat =), it will send a bug if we set -1
+	 * @pressBehavior if isKeyboardVisible === true, it will send a bug that bottom sheet is not completely collapse
 	 */
 	const renderBackdrop = useCallback(
 		(props: BottomSheetBackdropProps) => (
-			<BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-0.5} />
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-0.5}
+				pressBehavior={isKeyboardVisible ? 'none' : 'close'}
+			/>
 		),
-		[],
+		[isKeyboardVisible],
 	)
 
 	const setTabBarStyle = useCallback((opacity: number, translateY: number) => {
@@ -190,18 +185,23 @@ const HomeTab = (props: Props) => {
 	 */
 	const onAnimate = useCallback((_: number, toIndex: number) => {
 		if (toIndex === -1) {
-			Keyboard.dismiss()
 			setTabBarStyle(1, 0)
-			if (indexCurrentPostComment != -1) setIndexCurrentPostComment(-1)
-			if (indexCurrentPostMore != -1) setIndexCurrentPostMore(-1)
+			setIndexCurrentPostComment(-1)
+			setIndexCurrentPostMore(-1)
 		}
 	}, [])
 
-	const renderPostItem = ({item, index}: PostRenderType) => (
-		<Post post={item} openComment={() => openComment(index)} openMore={() => openMore(index)} />
+	const renderPostItem = useCallback(
+		({item, index}: PostRenderType) => (
+			<Post post={item} openComment={() => openComment(index)} openMore={() => openMore(index)} />
+		),
+		[],
 	)
 
-	const renderCommentItem = ({item, index}: CommentRenderType) => <Comment comment={item} />
+	const renderCommentItem = useCallback(
+		({item, index}: CommentRenderType) => <Comment comment={item} />,
+		[],
+	)
 
 	const bottomSheetContextValue = useMemo(() => {
 		return {postId: posts[indexCurrentPostComment] ? posts[indexCurrentPostComment].id : undefined}
@@ -263,7 +263,7 @@ const HomeTab = (props: Props) => {
 				<BottomSheet
 					ref={commentSheetRef}
 					index={-1}
-					enablePanDownToClose
+					enablePanDownToClose={isKeyboardVisible ? false : true}
 					snapPoints={['66%', '100%']}
 					footerComponent={CommentBox}
 					backdropComponent={renderBackdrop}

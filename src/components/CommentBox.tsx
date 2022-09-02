@@ -18,7 +18,7 @@ const CommentBox = ({animatedFooterPosition}: BottomSheetFooterProps) => {
 
 	// Set comment = '' when close CommentBox
 	useEffect(() => {
-		if (postId == undefined && comment != '') {
+		if (postId === undefined && comment !== '') {
 			setComment('')
 		}
 	}, [postId])
