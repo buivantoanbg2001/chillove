@@ -1,5 +1,4 @@
 import React, {useRef, useState, createContext, useCallback, useEffect, useMemo} from 'react'
-
 import {
 	StyleSheet,
 	View,
@@ -7,7 +6,6 @@ import {
 	Image,
 	TouchableOpacity,
 	Platform,
-	Keyboard,
 	ActivityIndicator,
 } from 'react-native'
 import {useBackHandler} from '../hooks/useBackHandler.hook'
@@ -21,7 +19,7 @@ import BottomSheet, {
 	BottomSheetBackdrop,
 	BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet'
-import {CustomText} from '../utils/CustomComponents'
+import {CustomText, CustomTextInput} from '../utils/CustomComponents'
 import {useDispatch} from 'react-redux'
 import Comment from '../components/Comment'
 import CommentBox from '../components/CommentBox'
@@ -36,8 +34,6 @@ const PADDING = 16
 
 export const BottomSheetContext = createContext<{postId: string | undefined}>({postId: undefined})
 
-type Props = {}
-
 type PostRenderType = {
 	item: PostType
 	index: number
@@ -48,9 +44,12 @@ type CommentRenderType = {
 	index: number
 }
 
-const HomeTab = (props: Props) => {
+const HomeTab: React.FC = () => {
 	var onEndReachedCalledDuringMomentum: boolean = true
+	const typingTimeout = useRef<any>(null)
+	const [searchInput, setSearchInput] = useState<string>('')
 	const [posts, setPosts] = useState<PostType[]>([])
+	const [initPosts, setInitPosts] = useState<PostType[]>([])
 	const [indexCurrentPostComment, setIndexCurrentPostComment] = useState<number>(-1)
 	const [indexCurrentPostMore, setIndexCurrentPostMore] = useState<number>(-1)
 	const [indexCommentSheet, setIndexCommentSheet] = useState<number>(-1)
@@ -96,12 +95,27 @@ const HomeTab = (props: Props) => {
 				})
 
 			setPosts(displayPosts)
+			setInitPosts(displayPosts)
 		})
 
 		return () => {
 			unsubscribePosts()
 		}
 	}, [])
+
+	useEffect(() => {
+		if (typingTimeout.current) {
+			clearTimeout(typingTimeout.current)
+		}
+
+		typingTimeout.current = setTimeout(() => {
+			setPosts(initPosts.filter(post => post.caption.includes(searchInput)))
+		}, 200)
+
+		return () => {
+			clearTimeout(typingTimeout.current)
+		}
+	}, [initPosts, searchInput])
 
 	/**
 	 * Close the BottomSheet if it is opening when Back button is pressed
@@ -232,7 +246,12 @@ const HomeTab = (props: Props) => {
 				resizeMode={'cover'}
 			/>
 
-			<Header handleAddNewPost={handleAddNewPost} scrollToTop={scrollToTop} />
+			<Header
+				searchInput={searchInput}
+				setSearchInput={setSearchInput}
+				handleAddNewPost={handleAddNewPost}
+				scrollToTop={scrollToTop}
+			/>
 
 			{/* All posts */}
 			<FlatList
@@ -323,33 +342,53 @@ const HomeTab = (props: Props) => {
 }
 
 type HeaderType = {
+	searchInput: string
+	setSearchInput: (text: string) => void
 	handleAddNewPost: () => void
 	scrollToTop: () => void
 }
 
-const Header = ({handleAddNewPost, scrollToTop}: HeaderType) => {
+const Header = ({searchInput, setSearchInput, handleAddNewPost, scrollToTop}: HeaderType) => {
 	const [disabled, setDisabled] = useState(false)
+	const [isSearch, setIsSearch] = useState(false)
 
 	return (
-		<View style={styles.header}>
-			<TouchableOpacity onPress={scrollToTop} activeOpacity={0.5}>
-				<Image source={require('../../assets/images/header-logo.png')} style={styles.logo} />
-			</TouchableOpacity>
-			<View style={{flexDirection: 'row'}}>
-				<TouchableOpacity style={styles.icon}>
-					<Icon type={Icons.Ionicons} name="search" size={30} color={Colors.black} />
+		<View style={{paddingHorizontal: 24}}>
+			<View style={styles.header}>
+				<TouchableOpacity onPress={scrollToTop} activeOpacity={0.5}>
+					<Image source={require('../../assets/images/header-logo.png')} style={styles.logo} />
 				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.icon}
-					disabled={disabled}
-					onPress={() => {
-						setDisabled(disabled => !disabled)
-						setTimeout(() => setDisabled(disabled => !disabled), 500)
-						handleAddNewPost()
-					}}>
-					<Icon type={Icons.MaterialCommunityIcons} name="pencil" size={30} color={Colors.black} />
-				</TouchableOpacity>
+				<View style={{flexDirection: 'row'}}>
+					<TouchableOpacity style={styles.icon} onPress={() => setIsSearch(isSearch => !isSearch)}>
+						<Icon type={Icons.Ionicons} name="search" size={30} color={Colors.black} />
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.icon}
+						disabled={disabled}
+						onPress={() => {
+							setDisabled(disabled => !disabled)
+							setTimeout(() => setDisabled(disabled => !disabled), 500)
+							handleAddNewPost()
+						}}>
+						<Icon
+							type={Icons.MaterialCommunityIcons}
+							name="pencil"
+							size={30}
+							color={Colors.black}
+						/>
+					</TouchableOpacity>
+				</View>
 			</View>
+			{isSearch && (
+				<Animatable.View animation={'fadeIn'} duration={500} useNativeDriver={true}>
+					<CustomTextInput
+						style={styles.textInput}
+						placeholder="Search by caption..."
+						value={searchInput}
+						onChangeText={setSearchInput}
+					/>
+				</Animatable.View>
+			)}
 		</View>
 	)
 }
@@ -366,7 +405,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		flexDirection: 'row',
-		paddingHorizontal: 24,
 		height: 90,
 	},
 	logo: {
@@ -398,7 +436,13 @@ const styles = StyleSheet.create({
 		borderRadius: 100,
 	},
 	loadingContainer: {
-		// marginBottom: 100,
 		alignItems: 'center',
+	},
+	textInput: {
+		borderRadius: 8,
+		paddingVertical: 8,
+		paddingHorizontal: 12,
+		marginBottom: PADDING,
+		backgroundColor: Colors.white_blur3,
 	},
 })
