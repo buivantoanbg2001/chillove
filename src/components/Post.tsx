@@ -31,8 +31,9 @@ type Props = {
 }
 
 const Post = ({post, openComment, openMore}: Props) => {
-	const [seeMore, setSeeMore] = useState(false)
+	console.log('render Post - ', post.caption.slice(0, 20))
 
+	const [seeMore, setSeeMore] = useState(false)
 	const users: UserType[] = useAppSelector(state => state.usersReducer)
 	const user = users.find(user_item => user_item.email == post.owner_email)
 
@@ -41,8 +42,6 @@ const Post = ({post, openComment, openMore}: Props) => {
 	const handleSeeMore = () => {
 		setSeeMore(!seeMore)
 	}
-
-	console.log('render Post')
 
 	return (
 		<View style={styles.container}>
@@ -113,25 +112,20 @@ const PostImages = ({post}: PostImagesProps) => {
 								source={{uri: item, priority: FastImage.priority.low}}
 								style={StyleSheet.absoluteFillObject}
 							/>
-
-							{/* <Video
-								source={{
-									uri: 'https://firebasestorage.googleapis.com/v0/b/chillove.appspot.com/o/ELANTRA%20video%2030S.mp4?alt=media&token=9a501299-524f-4a17-958b-4fcbd0901049',
-								}}
-								style={{width: 100, height: 100, position: 'absolute'}}
-								paused
-							/> */}
 						</Animated.View>
 					)
 				}}
 				keyExtractor={(_, index) => index.toString()}
 				pagingEnabled
-				initialNumToRender={24}
 				showsHorizontalScrollIndicator={false}
 				onScroll={Animated.event([{nativeEvent: {contentOffset: {x: scrollX}}}], {
 					useNativeDriver: true,
 					listener: onScroll,
 				})}
+				initialNumToRender={5}
+				windowSize={5}
+				removeClippedSubviews
+				maxToRenderPerBatch={5}
 			/>
 			<View style={styles.paginationDot}>
 				<PaginationDot
@@ -175,7 +169,7 @@ const PostInfo = ({post, user}: PostInfoProps) => {
 					}}>
 					{user.username}
 				</CustomText>
-				<TimeRelative style={{color: Colors.gray}} time={post.created_at} />
+				<TimeRelative style={{color: Colors.gray, fontSize: 13}} time={post.created_at} />
 			</View>
 		</View>
 	)

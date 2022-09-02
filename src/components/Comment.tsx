@@ -20,9 +20,9 @@ type Props = {
 }
 
 const Comment = ({comment}: Props) => {
-	console.log('render Comment')
-	const [seeMore, setSeeMore] = useState(false)
+	console.log('render Comment - ', comment.comment.slice(0, 20))
 
+	const [seeMore, setSeeMore] = useState(false)
 	const users: UserType[] = useAppSelector(state => state.usersReducer)
 	const user = users.find(user => user.email == comment.owner_email)
 
@@ -70,7 +70,7 @@ const Comment = ({comment}: Props) => {
 								marginBottom: PADDING,
 							}}>
 							<TimeRelative
-								style={{fontSize: 15, color: Colors.gray, marginRight: 10}}
+								style={{color: Colors.gray, marginRight: 10}}
 								time={comment.commented_at}
 							/>
 							<Icon type={Icons.Feather} name="calendar" size={15} color={Colors.gray} />

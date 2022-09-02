@@ -93,6 +93,8 @@ const Button = ({
 		<TouchableOpacity
 			{...props}
 			style={[styles.defaultButton, props.style, props.disabled ? styles.disabled : null]}>
+			{props.children}
+
 			{source &&
 				(iconAnimStyle ? (
 					<Animated.Image source={source} style={[iconStyle, iconAnimStyle]} />
@@ -137,7 +139,6 @@ const styles = StyleSheet.create({
 	defaultButton: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		marginHorizontal: width * 0.1,
 	},
 	solidButtonWrapper: {
 		borderRadius: 50,

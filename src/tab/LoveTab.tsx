@@ -1,11 +1,13 @@
 import React, {useState, useEffect} from 'react'
-import {SafeAreaView, StyleSheet, Text, Image, View, ScrollView, Platform} from 'react-native'
+import {SafeAreaView, StyleSheet, Text, View, ScrollView} from 'react-native'
 import Colors from '../utils/Colors'
 import * as Animatable from 'react-native-animatable'
-import {useSelector} from 'react-redux'
 import {auth} from '../firebase/firebase-config'
 import {Button} from '../utils/CustomComponents'
 import FastImage from 'react-native-fast-image'
+import {useAppSelector} from '../hooks/redux.hook'
+import {UserType} from '../models/user.model'
+import {intervalToDuration} from 'date-fns'
 
 const delay = [0, 400, 1200, 900, 300, 500]
 const iterationDelay = [0, 100, 50, 120, 10, 80]
@@ -13,56 +15,19 @@ const timeDefinitions = ['Year', 'Month', 'Day', 'Hour', 'Min', 'Sec']
 
 const loveBegin = new Date('2018-07-23T12:00:00Z')
 
-const aMinute = 1000 * 60
-const aHour = aMinute * 60
-const aDay = aHour * 24
-const aMonth = aDay * 30
-const aYear = aDay * 365
+const LoveTab: React.FC = () => {
+	console.log('render LoveTab')
 
-type Props = {}
+	const users: UserType[] = useAppSelector(state => state.usersReducer)
 
-const LoveTab = (props: Props) => {
-	const users = useSelector((state: any) => state.usersReducer)
+	const user = users.find(user_item =>
+		auth.currentUser ? user_item.email == auth.currentUser.email : 'buivantoanbg2001@gmail.com',
+	)
+	const user_lover = users.find(user_item =>
+		auth.currentUser ? user_item.email != auth.currentUser.email : 'linhngocbh2001@gmail.com',
+	)
 
-	if (auth.currentUser == null) return <></>
-
-	const user =
-		users[
-			auth.currentUser.email ? auth.currentUser.email?.toString() : 'buivantoanbg2001@gmail.com'
-		]
-	const user_lover =
-		auth.currentUser.email == 'buivantoanbg2001@gmail.com'
-			? users['linhngocbh2001@gmail.com']
-			: users['buivantoanbg2001@gmail.com']
-
-	const [loveTime, setLoveTime] = useState(() => {
-		var tmp = Date.now() - loveBegin.getTime()
-		return [
-			Math.floor(tmp / aYear),
-			Math.floor((tmp % aYear) / aMonth),
-			Math.floor((tmp % aMonth) / aDay),
-			Math.floor((tmp % aDay) / aHour),
-			Math.floor((tmp % aHour) / aMinute),
-			Math.floor((tmp % aMinute) / 1000),
-		]
-	})
-
-	const computeLoveTime = () => {
-		let now = Date.now() - loveBegin.getTime()
-		setLoveTime([
-			Math.floor(now / aYear),
-			Math.floor((now % aYear) / aMonth),
-			Math.floor((now % aMonth) / aDay),
-			Math.floor((now % aDay) / aHour),
-			Math.floor((now % aHour) / aMinute),
-			Math.floor((now % aMinute) / 1000),
-		])
-	}
-
-	useEffect(() => {
-		const interval = setInterval(() => computeLoveTime(), 1000)
-		return () => clearInterval(interval)
-	}, [])
+	if (user == null || user_lover == null) return <></>
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -78,37 +43,7 @@ const LoveTab = (props: Props) => {
 					Two pandas have been the couple for...
 				</Animatable.Text>
 
-				<View style={styles.loveTimeContainer}>
-					{loveTime.map((time, index) => (
-						<Animatable.View
-							key={index}
-							animation="short-slide-in-down"
-							iterationCount="infinite"
-							direction="alternate"
-							delay={delay[index]}
-							iterationDelay={iterationDelay[index]}
-							useNativeDriver={true}>
-							<View style={{alignItems: 'center', justifyContent: 'center'}}>
-								<Animatable.Image
-									animation="flash"
-									iterationCount="infinite"
-									direction="alternate"
-									delay={delay[index]}
-									duration={1500}
-									useNativeDriver={true}
-									source={require('../../assets/images/ic_love_anniversary.png')}
-									style={{width: 48, height: 48, resizeMode: 'contain'}}
-								/>
-								<View style={{position: 'absolute', top: 12}}>
-									<Text style={styles.text}>{time}</Text>
-								</View>
-							</View>
-							<Text style={styles.normalText}>
-								{timeDefinitions[index] + (time > 1 ? 's' : '')}
-							</Text>
-						</Animatable.View>
-					))}
-				</View>
+				<LoveTime />
 
 				<View style={styles.infoWrapper}>
 					<InfoUser user={user} />
@@ -127,6 +62,79 @@ const LoveTab = (props: Props) => {
 				/>
 			</ScrollView>
 		</SafeAreaView>
+	)
+}
+
+const LoveTime: React.FC = () => {
+	console.log('render LoveTime')
+
+	const [loveTime, setLoveTime] = useState(() => {
+		const duration = intervalToDuration({
+			start: loveBegin,
+			end: new Date(),
+		})
+
+		return [
+			duration.years || 0,
+			duration.months || 0,
+			duration.days || 0,
+			duration.hours || 0,
+			duration.minutes || 0,
+			duration.seconds || 0,
+		]
+	})
+
+	useEffect(() => {
+		const interval = setInterval(() => computeLoveTime(), 1000)
+		return () => clearInterval(interval)
+	}, [])
+
+	const computeLoveTime = () => {
+		const duration = intervalToDuration({
+			start: loveBegin,
+			end: new Date(),
+		})
+
+		setLoveTime([
+			duration.years || 0,
+			duration.months || 0,
+			duration.days || 0,
+			duration.hours || 0,
+			duration.minutes || 0,
+			duration.seconds || 0,
+		])
+	}
+
+	return (
+		<View style={styles.loveTimeContainer}>
+			{loveTime.map((time, index) => (
+				<Animatable.View
+					key={index}
+					animation="short-slide-in-down"
+					iterationCount="infinite"
+					direction="alternate"
+					delay={delay[index]}
+					iterationDelay={iterationDelay[index]}
+					useNativeDriver={true}>
+					<View style={{alignItems: 'center', justifyContent: 'center'}}>
+						<Animatable.Image
+							animation="flash"
+							iterationCount="infinite"
+							direction="alternate"
+							delay={delay[index]}
+							duration={1500}
+							useNativeDriver={true}
+							source={require('../../assets/images/ic_love_anniversary.png')}
+							style={{width: 48, height: 48, resizeMode: 'contain'}}
+						/>
+						<View style={{position: 'absolute', top: 12}}>
+							<Text style={styles.text}>{time}</Text>
+						</View>
+					</View>
+					<Text style={styles.normalText}>{timeDefinitions[index] + (time > 1 ? 's' : '')}</Text>
+				</Animatable.View>
+			))}
+		</View>
 	)
 }
 

@@ -2,7 +2,7 @@ import React, {useEffect, useState, useContext} from 'react'
 import {StyleSheet, Text, View, TouchableOpacity, Keyboard} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {BottomSheetFooter, BottomSheetFooterProps} from '@gorhom/bottom-sheet'
-import {CustomTextInput} from '../utils/CustomComponents'
+import {Button, CustomTextInput} from '../utils/CustomComponents'
 import Icon, {Icons} from '../utils/Icons'
 import Colors from '../utils/Colors'
 import {BottomSheetContext} from '../tab/HomeTab'
@@ -11,16 +11,22 @@ import {auth, db, doc, arrayUnion, updateDoc, Timestamp} from '../firebase/fireb
 const CommentBox = ({animatedFooterPosition}: BottomSheetFooterProps) => {
 	const {bottom: bottomSafeArea} = useSafeAreaInsets()
 	const [comment, setComment] = useState<string>('')
-	const {indexSheet, postId} = useContext(BottomSheetContext)
+	const [disabled, setDisabled] = useState<boolean>(false)
+	const {postId} = useContext(BottomSheetContext)
+
+	console.log('render CommentBox -', postId)
 
 	// Set comment = '' when close CommentBox
 	useEffect(() => {
-		if (indexSheet == -1) {
+		if (postId == undefined && comment != '') {
 			setComment('')
 		}
-	}, [indexSheet])
+	}, [postId])
 
 	const sendComment = () => {
+		// Disable send button
+		setDisabled(true)
+
 		if (auth.currentUser && postId) {
 			updateDoc(doc(db, 'posts', postId), {
 				comments: arrayUnion({
@@ -32,6 +38,7 @@ const CommentBox = ({animatedFooterPosition}: BottomSheetFooterProps) => {
 				.then(() => {
 					console.log('Comment successfully added')
 					setComment('')
+					setDisabled(false)
 					Keyboard.dismiss()
 				})
 				.catch(error => {
@@ -56,12 +63,13 @@ const CommentBox = ({animatedFooterPosition}: BottomSheetFooterProps) => {
 				style={styles.textInput}
 				placeholder="Leave a comment..."
 				value={comment}
-				onChangeText={text => setComment(text)}
+				onChangeText={setComment}
 			/>
+
 			{comment.length > 0 && (
-				<TouchableOpacity style={styles.addButton} onPress={sendComment}>
+				<Button style={styles.addButton} onPress={sendComment} disabled={disabled}>
 					<Icon type={Icons.Feather} name="arrow-up" size={20} color={Colors.white} />
-				</TouchableOpacity>
+				</Button>
 			)}
 		</BottomSheetFooter>
 	)
@@ -92,7 +100,5 @@ const styles = StyleSheet.create({
 		height: 32,
 		marginLeft: 16,
 		borderRadius: 24,
-		alignItems: 'center',
-		justifyContent: 'center',
 	},
 })

@@ -6,12 +6,10 @@ import {
 	ScrollView,
 	Image,
 	TouchableOpacity,
-	TextInput,
 	FlatList,
 	Switch,
 	Dimensions,
 	Platform,
-	Text,
 	Keyboard,
 } from 'react-native'
 import Colors from '../utils/Colors'
@@ -32,6 +30,7 @@ import {
 	doc,
 	setDoc,
 	UploadResult,
+	Timestamp,
 } from '../firebase/firebase-config'
 import uuid from 'react-native-uuid'
 import useHighlightHashtag from '../hooks/useHighlightHashtag.hook'
@@ -106,7 +105,7 @@ const NewPostScreen = (props: Props) => {
 								owner_email: auth.currentUser.email,
 								is_private: privatePost,
 								caption: caption,
-								created_at: serverTimestamp(),
+								created_at: Timestamp.now(),
 								comments: [],
 								hashtags: hashtagSet,
 							}).then(() => {
@@ -116,7 +115,9 @@ const NewPostScreen = (props: Props) => {
 									content: 'Add new post successfully',
 									type: {success: true},
 								})
-								setTimeout(() => navigation.goBack(), 4000)
+								setTimeout(() => {
+									if (navigation.canGoBack()) navigation.goBack()
+								}, 4000)
 							})
 						} else {
 							/**
@@ -145,7 +146,7 @@ const NewPostScreen = (props: Props) => {
 		 * @success navigation.goBack();
 		 * @error Do not do anything
 		 */
-		navigation.goBack()
+		if (navigation.canGoBack()) navigation.goBack()
 	}
 
 	const openGallery = () => {

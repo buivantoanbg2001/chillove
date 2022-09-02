@@ -1,5 +1,15 @@
-import React, {useRef, useState, createContext, useCallback, useEffect} from 'react'
-import {StyleSheet, View, SafeAreaView, Image, TouchableOpacity, Platform} from 'react-native'
+import React, {useRef, useState, createContext, useCallback, useEffect, useMemo} from 'react'
+
+import {
+	StyleSheet,
+	View,
+	SafeAreaView,
+	Image,
+	TouchableOpacity,
+	Platform,
+	Keyboard,
+	ActivityIndicator,
+} from 'react-native'
 import {useBackHandler} from '../hooks/useBackHandler.hook'
 import {FlatList} from 'react-native-gesture-handler'
 import Colors from '../utils/Colors'
@@ -31,10 +41,7 @@ import {PostType, CommentType} from '../models/post.model'
 const MARGIN = 24
 const PADDING = 16
 
-export const BottomSheetContext = createContext<{indexSheet: number; postId: string | undefined}>({
-	indexSheet: -1,
-	postId: undefined,
-})
+export const BottomSheetContext = createContext<{postId: string | undefined}>({postId: undefined})
 
 type Props = {}
 
@@ -49,16 +56,31 @@ type CommentRenderType = {
 }
 
 const HomeTab = (props: Props) => {
+	var onEndReachedCalledDuringMomentum: boolean = true
 	const [posts, setPosts] = useState<PostType[]>([])
 	const [indexCurrentPostComment, setIndexCurrentPostComment] = useState<number>(-1)
 	const [indexCurrentPostMore, setIndexCurrentPostMore] = useState<number>(-1)
 	const [indexCommentSheet, setIndexCommentSheet] = useState<number>(-1)
 	const [indexMoreSheet, setIndexMoreSheet] = useState<number>(-1)
+	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
+	const [limitIndexVisiblePost, setLimitIndexVisiblePost] = useState<number>(10)
 	const commentSheetRef = useRef<BottomSheet>(null)
 	const moreSheetRef = useRef<BottomSheet>(null)
 	const flatListRef = useRef<FlatList>(null)
 	const dispatch = useDispatch()
 	const navigation = useNavigation<StackNavigationProp<any>>()
+
+	useEffect(() => {
+		setTabBarStyle(0, 150)
+	}, [])
+
+	const getData = () => {
+		setIsLoadingMore(true)
+		setTimeout(() => {
+			// setLimitIndexVisiblePost(limitIndexVisiblePost + 2)
+			setIsLoadingMore(false)
+		}, 200)
+	}
 
 	useEffect(() => {
 		const postsDocRef = collection(db, 'posts') as CollectionReference<PostType>
@@ -67,13 +89,22 @@ const HomeTab = (props: Props) => {
 				return {...post.data(), id: post.id.toString()}
 			})
 
-			const displayPosts = allPosts.filter(post => {
-				if (auth.currentUser) {
-					return !post.is_private || (post.is_private && post.owner_email == auth.currentUser.email)
-				} else {
-					return !post.is_private
-				}
-			})
+			const displayPosts = allPosts
+				.filter(post => {
+					if (auth.currentUser) {
+						return (
+							!post.is_private || (post.is_private && post.owner_email == auth.currentUser.email)
+						)
+					} else {
+						return !post.is_private
+					}
+				})
+				.sort((p1, p2) => {
+					return (
+						new Date(p2.created_at.seconds * 1000 + p2.created_at.nanoseconds / 1000000).getTime() -
+						new Date(p1.created_at.seconds * 1000 + p1.created_at.nanoseconds / 1000000).getTime()
+					)
+				})
 
 			setPosts(displayPosts)
 		})
@@ -137,7 +168,11 @@ const HomeTab = (props: Props) => {
 		if (commentSheetRef.current) {
 			commentSheetRef.current.snapToIndex(0)
 		}
-		setTimeout(() => setIndexCurrentPostComment(index))
+		setTimeout(() => {
+			if (indexCurrentPostComment != index) {
+				setIndexCurrentPostComment(index)
+			}
+		})
 	}, [])
 
 	const openMore = useCallback((index: number) => {
@@ -145,7 +180,9 @@ const HomeTab = (props: Props) => {
 		if (moreSheetRef.current) {
 			moreSheetRef.current.snapToIndex(0)
 		}
-		setTimeout(() => setIndexCurrentPostMore(index))
+		setTimeout(() => {
+			if (indexCurrentPostMore != index) setIndexCurrentPostMore(index)
+		})
 	}, [])
 
 	/**
@@ -153,9 +190,10 @@ const HomeTab = (props: Props) => {
 	 */
 	const onAnimate = useCallback((_: number, toIndex: number) => {
 		if (toIndex === -1) {
+			Keyboard.dismiss()
 			setTabBarStyle(1, 0)
-			setIndexCurrentPostComment(-1)
-			setIndexCurrentPostMore(-1)
+			if (indexCurrentPostComment != -1) setIndexCurrentPostComment(-1)
+			if (indexCurrentPostMore != -1) setIndexCurrentPostMore(-1)
 		}
 	}, [])
 
@@ -164,6 +202,18 @@ const HomeTab = (props: Props) => {
 	)
 
 	const renderCommentItem = ({item, index}: CommentRenderType) => <Comment comment={item} />
+
+	const bottomSheetContextValue = useMemo(() => {
+		return {postId: posts[indexCurrentPostComment] ? posts[indexCurrentPostComment].id : undefined}
+	}, [indexCurrentPostComment])
+
+	const renderFooter = () => {
+		return isLoadingMore ? (
+			<View style={styles.loadingContainer}>
+				<ActivityIndicator size="large" color={Colors.grape_fruit} />
+			</View>
+		) : null
+	}
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -188,30 +238,28 @@ const HomeTab = (props: Props) => {
 			<FlatList
 				ref={flatListRef}
 				contentContainerStyle={{paddingBottom: 146, paddingTop: 4}}
-				data={posts
-					.sort(
-						(p1, p2) =>
-							new Date(
-								p2.created_at.seconds * 1000 + p2.created_at.nanoseconds / 1000000,
-							).getTime() -
-							new Date(
-								p1.created_at.seconds * 1000 + p1.created_at.nanoseconds / 1000000,
-							).getTime(),
-					)
-					.slice(0, 2)}
+				data={posts}
 				renderItem={renderPostItem}
-				keyExtractor={(_, index) => index.toString()}
-				initialNumToRender={10}
+				ListFooterComponent={renderFooter}
+				onEndReachedThreshold={0.01}
+				onMomentumScrollBegin={() => (onEndReachedCalledDuringMomentum = false)}
+				onEndReached={() => {
+					if (!onEndReachedCalledDuringMomentum) {
+						getData()
+						onEndReachedCalledDuringMomentum = true
+					}
+				}}
+				keyExtractor={item => item.id}
 				showsHorizontalScrollIndicator={false}
 				nestedScrollEnabled
+				initialNumToRender={5}
+				windowSize={5}
+				removeClippedSubviews
+				maxToRenderPerBatch={2}
 			/>
 
 			{/* BottomSheet for 'Comment' */}
-			<BottomSheetContext.Provider
-				value={{
-					indexSheet: indexCommentSheet,
-					postId: posts[indexCurrentPostComment] ? posts[indexCurrentPostComment].id : undefined,
-				}}>
+			<BottomSheetContext.Provider value={bottomSheetContextValue}>
 				<BottomSheet
 					ref={commentSheetRef}
 					index={-1}
@@ -246,10 +294,13 @@ const HomeTab = (props: Props) => {
 								)}
 								renderItem={renderCommentItem}
 								keyExtractor={(_, index) => index.toString()}
-								initialNumToRender={24}
 								showsHorizontalScrollIndicator={false}
 								nestedScrollEnabled
 								contentContainerStyle={{paddingBottom: 120}}
+								initialNumToRender={10}
+								windowSize={5}
+								removeClippedSubviews
+								maxToRenderPerBatch={8}
 							/>
 						)}
 					</View>
@@ -345,5 +396,9 @@ const styles = StyleSheet.create({
 		marginBottom: PADDING / 2,
 		backgroundColor: Colors.black_blur2,
 		borderRadius: 100,
+	},
+	loadingContainer: {
+		// marginBottom: 100,
+		alignItems: 'center',
 	},
 })
