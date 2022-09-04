@@ -34,7 +34,7 @@ const LoveTab: React.FC = () => {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<FastImage source={require('../../assets/images/heart_fly.gif')} style={styles.background} />
+			<FastImage source={require('../assets/images/heart_fly.gif')} style={styles.background} />
 
 			<ScrollView style={{marginTop: 45}}>
 				<Animatable.Text
@@ -51,7 +51,7 @@ const LoveTab: React.FC = () => {
 				<View style={styles.infoWrapper}>
 					<InfoUser user={user} />
 					<FastImage
-						source={require('../../assets/images/love_line.gif')}
+						source={require('../assets/images/love_line.gif')}
 						style={{width: 110, height: 90}}
 						resizeMode={FastImage.resizeMode.contain}
 					/>
@@ -59,7 +59,7 @@ const LoveTab: React.FC = () => {
 				</View>
 
 				<FastImage
-					source={require('../../assets/images/couple.gif')}
+					source={require('../assets/images/couple.gif')}
 					style={{width: 170, height: 150, alignSelf: 'center'}}
 					resizeMode={FastImage.resizeMode.contain}
 				/>
@@ -127,7 +127,7 @@ const LoveTime: React.FC = () => {
 							delay={delay[index]}
 							duration={1500}
 							useNativeDriver={true}
-							source={require('../../assets/images/ic_love_anniversary.png')}
+							source={require('../assets/images/ic_love_anniversary.png')}
 							style={{width: 48, height: 48, resizeMode: 'contain'}}
 						/>
 						<View style={{position: 'absolute', top: 12}}>

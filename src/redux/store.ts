@@ -1,6 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit'
 import layoutReducer from './reducers/layoutReducer'
 import tabBarStyleReducer from './reducers/tabBarStyleReducer'
+import toastsReducer from './reducers/toastsReducer'
 import usersReducer from './reducers/usersReducer'
 
 const store = configureStore({
@@ -8,6 +9,7 @@ const store = configureStore({
 		usersReducer: usersReducer,
 		layoutReducer: layoutReducer,
 		tabBarStyleReducer: tabBarStyleReducer,
+		toastsReducer: toastsReducer,
 	},
 })
 

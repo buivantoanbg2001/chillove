@@ -20,7 +20,6 @@ import BottomSheet, {
 	BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet'
 import {CustomText, CustomTextInput} from '../utils/CustomComponents'
-import {useDispatch} from 'react-redux'
 import Comment from '../components/Comment'
 import CommentBox from '../components/CommentBox'
 import {auth, db, onSnapshot, collection, CollectionReference} from '../firebase/firebase-config'
@@ -28,6 +27,10 @@ import {useNavigation} from '@react-navigation/native'
 import {StackNavigationProp} from '@react-navigation/stack'
 import {PostType, CommentType} from '../models/post.model'
 import useKeyboard from '../hooks/useKeyboard.hook'
+import {useAppDispatch} from '../hooks/redux.hook'
+import uuid from 'react-native-uuid'
+import {saveFileToGallery} from '../helpers/file'
+import useToast from '../hooks/useToast.hook'
 
 const MARGIN = 24
 const PADDING = 16
@@ -55,13 +58,14 @@ const HomeTab: React.FC = () => {
 	const [indexCommentSheet, setIndexCommentSheet] = useState<number>(-1)
 	const [indexMoreSheet, setIndexMoreSheet] = useState<number>(-1)
 	const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
-	const [limitIndexVisiblePost, setLimitIndexVisiblePost] = useState<number>(10)
+	const [isDisabledDownload, setIsDisabledDownload] = useState<boolean>(false)
 	const commentSheetRef = useRef<BottomSheet>(null)
 	const moreSheetRef = useRef<BottomSheet>(null)
 	const flatListRef = useRef<FlatList>(null)
-	const dispatch = useDispatch()
 	const navigation = useNavigation<StackNavigationProp<any>>()
 	const isKeyboardVisible = useKeyboard()
+	const dispatch = useAppDispatch()
+	const {addToast} = useToast()
 
 	const getData = () => {
 		setIsLoadingMore(true)
@@ -183,6 +187,36 @@ const HomeTab: React.FC = () => {
 			}
 		})
 	}, [])
+
+	const savePicture = () => {
+		if (moreSheetRef.current) moreSheetRef.current.close()
+
+		addToast({
+			id: uuid.v4().toString(),
+			message: 'Saving...',
+		})
+
+		const promises: Promise<any>[] = []
+		for (let image of posts[indexCurrentPostMore].images) {
+			promises.push(saveFileToGallery(image))
+		}
+
+		Promise.all(promises)
+			.then(res =>
+				addToast({
+					id: uuid.v4().toString(),
+					message: res[0].message,
+					type: {success: true},
+				}),
+			)
+			.catch(err =>
+				addToast({
+					id: uuid.v4().toString(),
+					message: err.message,
+					type: {error: true},
+				}),
+			)
+	}
 
 	const openMore = useCallback((index: number) => {
 		setTabBarStyle(0, 150)
@@ -335,7 +369,17 @@ const HomeTab: React.FC = () => {
 				backdropComponent={renderBackdrop}
 				onAnimate={onAnimate}
 				onChange={index => setIndexMoreSheet(index)}>
-				<></>
+				<View style={styles.moreContainer}>
+					<TouchableOpacity
+						style={{padding: 12}}
+						onPress={savePicture}
+						disabled={
+							isDisabledDownload ||
+							(posts[indexCurrentPostMore] && posts[indexCurrentPostMore].images.length === 0)
+						}>
+						<Icon type={Icons.AntDesign} name="download" size={42} color={Colors.black} />
+					</TouchableOpacity>
+				</View>
 			</BottomSheet>
 		</SafeAreaView>
 	)
@@ -356,7 +400,7 @@ const Header = ({searchInput, setSearchInput, handleAddNewPost, scrollToTop}: He
 		<View style={{paddingHorizontal: 24}}>
 			<View style={styles.header}>
 				<TouchableOpacity onPress={scrollToTop} activeOpacity={0.5}>
-					<Image source={require('../../assets/images/header-logo.png')} style={styles.logo} />
+					<Image source={require('../assets/images/header-logo.png')} style={styles.logo} />
 				</TouchableOpacity>
 				<View style={{flexDirection: 'row'}}>
 					<TouchableOpacity style={styles.icon} onPress={() => setIsSearch(isSearch => !isSearch)}>
@@ -444,5 +488,11 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		marginBottom: PADDING,
 		backgroundColor: Colors.white_blur3,
+	},
+	moreContainer: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginBottom: 24,
 	},
 })

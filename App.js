@@ -2,6 +2,8 @@ import React, {useEffect} from 'react'
 import {StatusBar} from 'react-native'
 import 'react-native-gesture-handler'
 import AuthNavigation from './AuthNavigation'
+import {Provider as ReduxProvider} from 'react-redux'
+import store from './src/redux/store'
 
 const App = () => {
 	useEffect(() => {
@@ -11,7 +13,11 @@ const App = () => {
 		StatusBar.setTranslucent(true)
 	}, [])
 
-	return <AuthNavigation />
+	return (
+		<ReduxProvider store={store}>
+			<AuthNavigation />
+		</ReduxProvider>
+	)
 }
 
 export default App

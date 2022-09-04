@@ -22,14 +22,14 @@ const SplashScreen = () => {
 				resizeMode={'cover'}
 			/>
 			<Animatable.Image
-				source={require('../../assets/images/logo.png')}
+				source={require('../assets/images/logo.png')}
 				style={styles.logo}
 				animation="fadeInUp"
 				duration={1000}
 				useNativeDriver={true}
 			/>
 			<Animatable.Image
-				source={require('../../assets/images/header-logo.png')}
+				source={require('../assets/images/header-logo.png')}
 				style={{width: 130, height: 65, resizeMode: 'contain'}}
 				animation="fadeInUp"
 				duration={1000}

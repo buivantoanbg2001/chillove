@@ -5,25 +5,21 @@ import NewPostScreen from './src/screens/NewPostScreen'
 import SplashScreen from './src/screens/SplashScreen'
 import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack'
-import {Provider as ReduxProvider} from 'react-redux'
-import store from './src/redux/store'
 
 const Stack = createStackNavigator()
 
 const SignedInStack = () => (
-	<ReduxProvider store={store}>
-		<NavigationContainer>
-			<Stack.Navigator
-				initialRouteName="MainScreen"
-				screenOptions={{
-					headerShown: false,
-					...TransitionPresets.FadeFromBottomAndroid,
-				}}>
-				<Stack.Screen name="MainScreen" component={MainScreen} />
-				<Stack.Screen name="NewPostScreen" component={NewPostScreen} />
-			</Stack.Navigator>
-		</NavigationContainer>
-	</ReduxProvider>
+	<NavigationContainer>
+		<Stack.Navigator
+			initialRouteName="MainScreen"
+			screenOptions={{
+				headerShown: false,
+				...TransitionPresets.FadeFromBottomAndroid,
+			}}>
+			<Stack.Screen name="MainScreen" component={MainScreen} />
+			<Stack.Screen name="NewPostScreen" component={NewPostScreen} />
+		</Stack.Navigator>
+	</NavigationContainer>
 )
 
 const SignedOutStack = () => (

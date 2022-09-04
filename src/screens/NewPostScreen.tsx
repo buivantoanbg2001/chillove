@@ -26,7 +26,6 @@ import {
 	db,
 	auth,
 	collection,
-	serverTimestamp,
 	doc,
 	setDoc,
 	UploadResult,
@@ -34,7 +33,7 @@ import {
 } from '../firebase/firebase-config'
 import uuid from 'react-native-uuid'
 import useHighlightHashtag from '../hooks/useHighlightHashtag.hook'
-import Toast from '../utils/Toast'
+import useToast from '../hooks/useToast.hook'
 
 const {width} = Dimensions.get('window')
 const PADDING = 16
@@ -42,29 +41,12 @@ const MARGIN = 24
 
 type Props = {}
 
-type Message = {
-	id: string
-	content: string
-	type?: {
-		success?: boolean
-		error?: boolean
-	}
-}
-
 const NewPostScreen = (props: Props) => {
 	const [caption, setCaption] = useState<string>('')
 	const [postImages, setPostImages] = useState<ImageOrVideo[]>([])
 	const [privatePost, setPrivatePost] = useState<boolean>(false)
-	const [messages, setMessages] = useState<Message[]>([])
 	const navigation = useNavigation()
-
-	const addToast = (message: Message) => {
-		setMessages(messages => [...messages, message])
-	}
-
-	const removeToast = (message: Message) => {
-		setMessages(messages => messages.filter(current => current.id !== message.id))
-	}
+	const {addToast} = useToast()
 
 	const regexHashtag = /^#[0-9a-zA-Z_]*[0-9a-zA-Z]+[0-9a-zA-Z_]*$/g
 
@@ -109,10 +91,9 @@ const NewPostScreen = (props: Props) => {
 								comments: [],
 								hashtags: hashtagSet,
 							}).then(() => {
-								console.log('Add new post successfully')
 								addToast({
 									id: uuid.v4().toString(),
-									content: 'Add new post successfully',
+									message: 'Add new post successfully',
 									type: {success: true},
 								})
 								setTimeout(() => {
@@ -120,23 +101,27 @@ const NewPostScreen = (props: Props) => {
 								}, 4000)
 							})
 						} else {
-							/**
-							 * @todo showToast("Post failed")
-							 */
+							addToast({
+								id: uuid.v4().toString(),
+								message: 'Please login to add your post',
+								type: {error: true},
+							})
 						}
 					})
 					.catch(error => {
-						console.log('Error', error.message)
-						/**
-						 * @todo showToast("Post failed")
-						 */
+						addToast({
+							id: uuid.v4().toString(),
+							message: 'ERROR: ' + error.message,
+							type: {error: true},
+						})
 					})
 			})
 			.catch(error => {
-				console.log('Error', error.message)
-				/**
-				 * @todo showToast("Post failed")
-				 */
+				addToast({
+					id: uuid.v4().toString(),
+					message: 'ERROR: ' + error.message,
+					type: {error: true},
+				})
 			})
 	}
 
@@ -289,17 +274,6 @@ const NewPostScreen = (props: Props) => {
 					<Button solid title="POST" style={styles.postButton} onPress={addNewPost} />
 				</Animatable.View>
 			</ScrollView>
-
-			<View style={styles.wrapperToast}>
-				{messages.map((message, index) => (
-					<Toast
-						key={message.id}
-						message={message.content}
-						onClose={() => removeToast(message)}
-						{...message.type}
-					/>
-				))}
-			</View>
 		</SafeAreaView>
 	)
 }
