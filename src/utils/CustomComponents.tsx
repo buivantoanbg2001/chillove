@@ -14,10 +14,10 @@ import {
 	ImageSourcePropType,
 	Dimensions,
 } from 'react-native'
-
 import React from 'react'
 import Colors from './Colors'
 import LinearGradient from 'react-native-linear-gradient'
+import * as Icon from './Icons'
 
 const PADDING = 16
 const MARGIN = 24
@@ -56,57 +56,52 @@ const CustomTextInput = (props: TextInputProps) => {
 }
 
 type ButtonProps = {
-	solid?: boolean
 	title?: string
-	source?: ImageSourcePropType
-	iconAnimStyle?: {}
-	iconStyle?: {}
 	titleStyle?: {}
-	gap?: number
+	icon?:
+		| Icon.AntDesign
+		| Icon.Entypo
+		| Icon.EvilIcons
+		| Icon.Feather
+		| Icon.FontAwesome
+		| Icon.FontAwesome5
+		| Icon.FontAwesome5Pro
+		| Icon.Fontisto
+		| Icon.Foundation
+		| Icon.Ionicons
+		| Icon.MaterialCommunityIcons
+		| Icon.MaterialIcons
+		| Icon.Octicons
+		| Icon.SimpleLineIcons
+		| Icon.Zocial
+	type?: 'solid' | 'border' | 'none'
 } & TouchableOpacityProps
 
-const Button = ({
-	solid,
-	title,
-	source,
-	iconAnimStyle,
-	iconStyle,
-	titleStyle,
-	gap,
-	...props
-}: ButtonProps) => {
-	return solid ? (
+const Button = ({title, titleStyle, icon, type, ...props}: ButtonProps) => {
+	return (
 		<TouchableOpacity
 			{...props}
-			style={[styles.solidButtonWrapper, props.style, props.disabled ? styles.disabled : null]}>
-			{title && (
-				<LinearGradient
-					start={{x: 0.3, y: -1}}
-					end={{x: 0.7, y: 2}}
-					style={[styles.solid, props.disabled ? styles.disabled : null]}
-					colors={[Colors.light_grape_fruit, Colors.dark_grape_fruit]}>
-					<CustomText style={[styles.titleSolidButton]}>{title}</CustomText>
-				</LinearGradient>
-			)}
-		</TouchableOpacity>
-	) : (
-		<TouchableOpacity
-			{...props}
-			style={[styles.defaultButton, props.style, props.disabled ? styles.disabled : null]}>
-			{props.children}
-
-			{source &&
-				(iconAnimStyle ? (
-					<Animated.Image source={source} style={[iconStyle, iconAnimStyle]} />
-				) : (
-					<Image source={source} style={iconStyle} />
-				))}
-
-			{title && (
-				<View style={{marginStart: gap || 0}}>
-					<CustomText style={[styles.title, titleStyle]}>{title}</CustomText>
-				</View>
-			)}
+			style={[
+				styles.defaultButton,
+				type === 'solid' ? styles.solidButton : type === 'none' ? null : styles.borderButton,
+				props.disabled ? {opacity: 0.2} : null,
+				props.style,
+			]}>
+			<>
+				{icon}
+				{title && (
+					<CustomText
+						style={[
+							styles.title,
+							type === 'solid' ? {color: Colors.lychee} : null,
+							icon ? {marginLeft: 4} : null,
+							titleStyle,
+						]}>
+						{title}
+					</CustomText>
+				)}
+				{props.children}
+			</>
 		</TouchableOpacity>
 	)
 }
@@ -137,28 +132,27 @@ const styles = StyleSheet.create({
 		padding: 12,
 	},
 	defaultButton: {
+		flexDirection: 'row',
+		alignSelf: 'center',
 		alignItems: 'center',
 		justifyContent: 'center',
-	},
-	solidButtonWrapper: {
-		borderRadius: 50,
-		marginHorizontal: width * 0.1,
-	},
-	solid: {
+		minWidth: width * 0.6,
 		padding: 12,
-		borderRadius: 50,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	titleSolidButton: {
-		color: Colors.lychee,
-		fontSize: 18,
+		borderRadius: 12,
 	},
 	title: {
-		color: 'red',
-		fontSize: 14,
+		color: Colors.dark_grape_fruit,
+		fontSize: 16,
+		fontFamily: 'Montserrat-600',
 	},
 	disabled: {
 		opacity: 0.2,
+	},
+	solidButton: {
+		backgroundColor: Colors.grape_fruit,
+	},
+	borderButton: {
+		borderColor: Colors.dark_grape_fruit,
+		borderWidth: 1,
 	},
 })

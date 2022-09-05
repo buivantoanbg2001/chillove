@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {useAppDispatch} from '../hooks/redux.hook'
+import {useAppDispatch} from './redux.hook'
 import {ToastType} from '../models/toast.model'
 
 const useToast = () => {

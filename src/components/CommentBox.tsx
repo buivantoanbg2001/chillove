@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, TouchableOpacity, Keyboard} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {BottomSheetFooter, BottomSheetFooterProps} from '@gorhom/bottom-sheet'
 import {Button, CustomTextInput} from '../utils/CustomComponents'
-import Icon, {Icons} from '../utils/Icons'
+import * as Icon from '../utils/Icons'
 import Colors from '../utils/Colors'
 import {BottomSheetContext} from '../tab/HomeTab'
 import {auth, db, doc, arrayUnion, updateDoc, Timestamp} from '../firebase/firebase-config'
@@ -67,9 +67,13 @@ const CommentBox = ({animatedFooterPosition}: BottomSheetFooterProps) => {
 			/>
 
 			{comment.length > 0 && (
-				<Button style={styles.addButton} onPress={sendComment} disabled={disabled}>
-					<Icon type={Icons.Feather} name="arrow-up" size={20} color={Colors.white} />
-				</Button>
+				<Button
+					type="solid"
+					icon={<Icon.Feather name="arrow-up" size={20} color={Colors.white} />}
+					style={styles.addButton}
+					onPress={sendComment}
+					disabled={disabled}
+				/>
 			)}
 		</BottomSheetFooter>
 	)
@@ -95,10 +99,10 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	addButton: {
-		backgroundColor: Colors.grape_fruit,
 		width: 32,
 		height: 32,
 		marginLeft: 16,
-		borderRadius: 24,
+		borderRadius: 16,
+		padding: 0,
 	},
 })

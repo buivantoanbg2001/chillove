@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, Image, Dimensions, TouchableOpacity} from 'react
 import {useAppSelector} from '../hooks/redux.hook'
 import Colors from '../utils/Colors'
 import {CustomText, CustomView} from '../utils/CustomComponents'
-import Icon, {Icons} from '../utils/Icons'
+import * as Icon from '../utils/Icons'
 import Divider from '../utils/Divider'
 import TimeRelative from '../utils/TimeRelative'
 import {CommentType} from '../models/post.model'
@@ -73,7 +73,7 @@ const Comment = ({comment}: Props) => {
 								style={{color: Colors.gray, marginRight: 10}}
 								time={comment.commented_at}
 							/>
-							<Icon type={Icons.Feather} name="calendar" size={15} color={Colors.gray} />
+							<Icon.Feather name="calendar" size={15} color={Colors.gray} />
 						</View>
 					</View>
 				</View>

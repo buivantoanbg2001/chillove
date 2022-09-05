@@ -4,7 +4,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import HomeTab from '../tab/HomeTab'
 import SettingsTab from '../tab/SettingsTab'
 import LoveTab from '../tab/LoveTab'
-import Icon, {Icons} from '../utils/Icons'
+import * as Icon from '../utils/Icons'
 import Colors from '../utils/Colors'
 import * as Animatable from 'react-native-animatable'
 import LinearGradient from 'react-native-linear-gradient'
@@ -46,19 +46,19 @@ const TabArr = [
 		name: 'Home',
 		component: HomeTab,
 		icon_name: 'home',
-		type: Icons.Feather,
+		type: Icon.Feather,
 	},
 	{
 		name: 'Love',
 		component: LoveTab,
 		icon_name: 'heart',
-		type: Icons.Feather,
+		type: Icon.Feather,
 	},
 	{
 		name: 'Settings',
 		component: SettingsTab,
 		icon_name: 'settings',
-		type: Icons.Feather,
+		type: Icon.Feather,
 	},
 ]
 
@@ -205,10 +205,9 @@ const TabIcon = ({tabBarIcon, label, isFocused, activeColor, inActiveColor, inde
 					alignItems: 'center',
 					transform: [{translateY: translateY}],
 				}}>
-				<Icon
+				<tabBarIcon.type
 					color={isFocused ? activeColor : inActiveColor}
 					name={tabBarIcon.icon_name}
-					type={tabBarIcon.type}
 					size={isFocused ? tabBarIcon.size * 1.1 : tabBarIcon.size}
 				/>
 			</Animated.View>

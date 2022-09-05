@@ -3,7 +3,6 @@ import {SafeAreaView, StyleSheet, Text, View, ScrollView} from 'react-native'
 import Colors from '../utils/Colors'
 import * as Animatable from 'react-native-animatable'
 import {auth} from '../firebase/firebase-config'
-import {Button} from '../utils/CustomComponents'
 import FastImage from 'react-native-fast-image'
 import {useAppSelector} from '../hooks/redux.hook'
 import {UserType} from '../models/user.model'
@@ -158,14 +157,7 @@ const InfoUser = ({user}: InfoUserProps) => {
 	return (
 		<View style={{alignItems: 'center'}}>
 			<View style={styles.avatar}>
-				<Button
-					activeOpacity={1}
-					iconStyle={styles.pictureProfile}
-					source={{
-						uri: user.avatar_url,
-					}}
-					style={styles.pictureProfileWrapper}
-				/>
+				<FastImage source={{uri: user.avatar_url, priority: 'low'}} style={styles.pictureProfile} />
 			</View>
 			<Animatable.Text
 				animation="pulse"
@@ -223,9 +215,6 @@ const styles = StyleSheet.create({
 		width: 90,
 		height: 90,
 		borderRadius: 100,
-	},
-	pictureProfileWrapper: {
-		marginHorizontal: 0,
 	},
 	loveTimeContainer: {
 		flexDirection: 'row',

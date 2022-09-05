@@ -15,7 +15,7 @@ import {
 import Colors from '../utils/Colors'
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker'
 import {Button, CustomText, CustomTextInput} from '../utils/CustomComponents'
-import Icon, {Icons} from '../utils/Icons'
+import * as Icon from '../utils/Icons'
 import * as Animatable from 'react-native-animatable'
 import {useNavigation} from '@react-navigation/native'
 import {
@@ -177,12 +177,7 @@ const NewPostScreen = (props: Props) => {
 					duration={500}
 					useNativeDriver={true}>
 					<View style={styles.elementHeader}>
-						<Icon
-							type={Icons.Ionicons}
-							name="document-text-outline"
-							size={14}
-							color={Colors.black}
-						/>
+						<Icon.Ionicons name="document-text-outline" size={14} color={Colors.black} />
 						<CustomText style={styles.elementTitle}>Caption</CustomText>
 					</View>
 
@@ -211,7 +206,7 @@ const NewPostScreen = (props: Props) => {
 					delay={150}
 					useNativeDriver={true}>
 					<View style={styles.elementHeader}>
-						<Icon type={Icons.Ionicons} name="camera-outline" size={14} color={Colors.black} />
+						<Icon.Ionicons name="camera-outline" size={14} color={Colors.black} />
 						<CustomText style={styles.elementTitle}>Add Photos/Videos</CustomText>
 					</View>
 
@@ -224,12 +219,7 @@ const NewPostScreen = (props: Props) => {
 
 					<View style={{marginTop: 16, flexDirection: 'row', alignItems: 'center'}}>
 						<TouchableOpacity style={styles.openGalleryButton} onPress={openGallery}>
-							<Icon
-								type={Icons.Ionicons}
-								name="camera-outline"
-								size={36}
-								color={Colors.grape_fruit}
-							/>
+							<Icon.Ionicons name="camera-outline" size={36} color={Colors.grape_fruit} />
 						</TouchableOpacity>
 						<FlatList
 							contentContainerStyle={{
@@ -253,7 +243,7 @@ const NewPostScreen = (props: Props) => {
 					delay={300}
 					useNativeDriver={true}>
 					<View style={styles.elementHeader}>
-						<Icon type={Icons.Ionicons} name="lock-closed-outline" size={14} color={Colors.black} />
+						<Icon.Ionicons name="lock-closed-outline" size={14} color={Colors.black} />
 						<CustomText style={styles.elementTitle}>Private Post</CustomText>
 					</View>
 
@@ -271,7 +261,7 @@ const NewPostScreen = (props: Props) => {
 				</Animatable.View>
 
 				<Animatable.View animation={'fadeIn'} duration={500} delay={600} useNativeDriver={true}>
-					<Button solid title="POST" style={styles.postButton} onPress={addNewPost} />
+					<Button type="solid" title="POST" style={styles.postButton} onPress={addNewPost} />
 				</Animatable.View>
 			</ScrollView>
 		</SafeAreaView>
@@ -287,11 +277,11 @@ const Header = ({addNewPost, goBack}: HeaderProps) => {
 	return (
 		<View style={styles.header}>
 			<TouchableOpacity onPress={goBack} style={{paddingHorizontal: 24, paddingVertical: 12}}>
-				<Icon type={Icons.Octicons} name="chevron-left" size={34} color={Colors.black} />
+				<Icon.Octicons name="chevron-left" size={34} color={Colors.black} />
 			</TouchableOpacity>
 			<CustomText style={styles.headerText}>New Post</CustomText>
 			<TouchableOpacity onPress={addNewPost} style={{paddingHorizontal: 24, paddingVertical: 12}}>
-				<Icon type={Icons.Octicons} name="check" size={34} color={Colors.black} />
+				<Icon.Octicons name="check" size={34} color={Colors.black} />
 			</TouchableOpacity>
 		</View>
 	)
@@ -372,6 +362,7 @@ const styles = StyleSheet.create({
 	postButton: {
 		marginTop: 40,
 		marginBottom: 32,
+		borderRadius: 50,
 	},
 	headerText: {
 		color: Colors.grape_fruit,

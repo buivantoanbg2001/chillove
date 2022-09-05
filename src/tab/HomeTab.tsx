@@ -8,18 +8,18 @@ import {
 	Platform,
 	ActivityIndicator,
 } from 'react-native'
-import {useBackHandler} from '../hooks/useBackHandler.hook'
+import useBackHandler from '../hooks/useBackHandler.hook'
 import {FlatList} from 'react-native-gesture-handler'
 import Colors from '../utils/Colors'
 import Post from '../components/Post'
-import Icon, {Icons} from '../utils/Icons'
+import * as Icon from '../utils/Icons'
 import * as Animatable from 'react-native-animatable'
 import BottomSheet, {
 	BottomSheetFlatList,
 	BottomSheetBackdrop,
 	BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet'
-import {CustomText, CustomTextInput} from '../utils/CustomComponents'
+import {Button, CustomText, CustomTextInput} from '../utils/CustomComponents'
 import Comment from '../components/Comment'
 import CommentBox from '../components/CommentBox'
 import {auth, db, onSnapshot, collection, CollectionReference} from '../firebase/firebase-config'
@@ -27,10 +27,10 @@ import {useNavigation} from '@react-navigation/native'
 import {StackNavigationProp} from '@react-navigation/stack'
 import {PostType, CommentType} from '../models/post.model'
 import useKeyboard from '../hooks/useKeyboard.hook'
-import {useAppDispatch} from '../hooks/redux.hook'
 import uuid from 'react-native-uuid'
 import {saveFileToGallery} from '../helpers/file'
 import useToast from '../hooks/useToast.hook'
+import useTabBar from '../hooks/useTabBar.hook'
 
 const MARGIN = 24
 const PADDING = 16
@@ -64,8 +64,8 @@ const HomeTab: React.FC = () => {
 	const flatListRef = useRef<FlatList>(null)
 	const navigation = useNavigation<StackNavigationProp<any>>()
 	const isKeyboardVisible = useKeyboard()
-	const dispatch = useAppDispatch()
 	const {addToast} = useToast()
+	const {showTabBarStyle, hideTabBarStyle} = useTabBar()
 
 	const getData = () => {
 		setIsLoadingMore(true)
@@ -141,7 +141,7 @@ const HomeTab: React.FC = () => {
 
 	/**
 	 * Render the Backdrop for BottomSheet
-	 * @disappearsOnIndex -0.5: cheat =), it will send a bug if we set -1
+	 * @disappearsOnIndex cheat: set value -0.5 =), it will send a bug if we set value -1
 	 * @pressBehavior if isKeyboardVisible === true, it will send a bug that bottom sheet is not completely collapse
 	 */
 	const renderBackdrop = useCallback(
@@ -156,16 +156,6 @@ const HomeTab: React.FC = () => {
 		[isKeyboardVisible],
 	)
 
-	const setTabBarStyle = useCallback((opacity: number, translateY: number) => {
-		dispatch({
-			type: 'SET_TAB_BAR_STYLE',
-			payload: {
-				opacity: opacity,
-				translateY: translateY,
-			},
-		})
-	}, [])
-
 	const scrollToTop = useCallback(() => {
 		if (flatListRef.current) {
 			flatListRef.current.scrollToOffset({animated: true, offset: 0})
@@ -177,7 +167,8 @@ const HomeTab: React.FC = () => {
 	}, [])
 
 	const openComment = useCallback((index: number) => {
-		setTabBarStyle(0, 150)
+		hideTabBarStyle()
+
 		if (commentSheetRef.current) {
 			commentSheetRef.current.snapToIndex(0)
 		}
@@ -219,7 +210,8 @@ const HomeTab: React.FC = () => {
 	}
 
 	const openMore = useCallback((index: number) => {
-		setTabBarStyle(0, 150)
+		hideTabBarStyle()
+
 		if (moreSheetRef.current) {
 			moreSheetRef.current.snapToIndex(0)
 		}
@@ -233,7 +225,7 @@ const HomeTab: React.FC = () => {
 	 */
 	const onAnimate = useCallback((_: number, toIndex: number) => {
 		if (toIndex === -1) {
-			setTabBarStyle(1, 0)
+			showTabBarStyle()
 			setIndexCurrentPostComment(-1)
 			setIndexCurrentPostMore(-1)
 		}
@@ -326,12 +318,7 @@ const HomeTab: React.FC = () => {
 						<View style={styles.commentHeader}>
 							<CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>Comments</CustomText>
 							<TouchableOpacity>
-								<Icon
-									type={Icons.Ionicons}
-									name="ellipsis-horizontal"
-									size={30}
-									color={Colors.black}
-								/>
+								<Icon.Ionicons name="ellipsis-horizontal" size={30} color={Colors.black} />
 							</TouchableOpacity>
 						</View>
 						{posts[indexCurrentPostComment] && (
@@ -370,15 +357,15 @@ const HomeTab: React.FC = () => {
 				onAnimate={onAnimate}
 				onChange={index => setIndexMoreSheet(index)}>
 				<View style={styles.moreContainer}>
-					<TouchableOpacity
-						style={{padding: 12}}
-						onPress={savePicture}
+					<Button
+						type="none"
+						icon={<Icon.AntDesign name="download" size={42} color={Colors.black} />}
+						style={{padding: 12, minWidth: 0}}
 						disabled={
-							isDisabledDownload ||
-							(posts[indexCurrentPostMore] && posts[indexCurrentPostMore].images.length === 0)
-						}>
-						<Icon type={Icons.AntDesign} name="download" size={42} color={Colors.black} />
-					</TouchableOpacity>
+							posts[indexCurrentPostMore] && posts[indexCurrentPostMore].images.length === 0
+						}
+						onPress={savePicture}
+					/>
 				</View>
 			</BottomSheet>
 		</SafeAreaView>
@@ -404,7 +391,11 @@ const Header = ({searchInput, setSearchInput, handleAddNewPost, scrollToTop}: He
 				</TouchableOpacity>
 				<View style={{flexDirection: 'row'}}>
 					<TouchableOpacity style={styles.icon} onPress={() => setIsSearch(isSearch => !isSearch)}>
-						<Icon type={Icons.Ionicons} name="search" size={30} color={Colors.black} />
+						<Icon.Ionicons
+							name="search"
+							size={30}
+							color={searchInput ? Colors.grape_fruit : Colors.black}
+						/>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={styles.icon}
@@ -414,12 +405,7 @@ const Header = ({searchInput, setSearchInput, handleAddNewPost, scrollToTop}: He
 							setTimeout(() => setDisabled(disabled => !disabled), 500)
 							handleAddNewPost()
 						}}>
-						<Icon
-							type={Icons.MaterialCommunityIcons}
-							name="pencil"
-							size={30}
-							color={Colors.black}
-						/>
+						<Icon.MaterialCommunityIcons name="pencil" size={30} color={Colors.black} />
 					</TouchableOpacity>
 				</View>
 			</View>

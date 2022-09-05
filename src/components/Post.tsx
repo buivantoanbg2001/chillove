@@ -12,7 +12,7 @@ import Colors from '../utils/Colors'
 import {useAppSelector} from '../hooks/redux.hook'
 import {CustomText} from '../utils/CustomComponents'
 import PaginationDot from 'react-native-animated-pagination-dot'
-import Icon, {Icons} from '../utils/Icons'
+import * as Icon from '../utils/Icons'
 import FastImage from 'react-native-fast-image'
 import useHighlightHashtag from '../hooks/useHighlightHashtag.hook'
 import TimeRelative from '../utils/TimeRelative'
@@ -186,8 +186,7 @@ const PostButton = ({post, openComment, openMore}: PostButtonProps) => {
 		<View style={styles.postButton}>
 			<View style={{flexDirection: 'row', alignItems: 'center'}}>
 				<TouchableOpacity style={{marginRight: 20}} onPress={openComment}>
-					<Icon
-						type={Icons.Ionicons}
+					<Icon.Ionicons
 						name="chatbubble-ellipses-outline"
 						size={28}
 						color={Colors.black}
@@ -195,17 +194,17 @@ const PostButton = ({post, openComment, openMore}: PostButtonProps) => {
 					/>
 				</TouchableOpacity>
 				<TouchableOpacity>
-					<Icon type={Icons.Ionicons} name="bookmarks-outline" size={28} color={Colors.black} />
+					<Icon.Ionicons name="bookmarks-outline" size={28} color={Colors.black} />
 				</TouchableOpacity>
 			</View>
 			<View style={{flexDirection: 'row', alignItems: 'center'}}>
 				{post.is_private && (
 					<View style={{marginRight: 12, opacity: 0.2}}>
-						<Icon type={Icons.Ionicons} name="lock-closed" size={18} color={Colors.black} />
+						<Icon.Ionicons name="lock-closed" size={18} color={Colors.black} />
 					</View>
 				)}
 				<TouchableOpacity onPress={openMore}>
-					<Icon type={Icons.Ionicons} name="ellipsis-horizontal" size={24} color={Colors.black} />
+					<Icon.Ionicons name="ellipsis-horizontal" size={24} color={Colors.black} />
 				</TouchableOpacity>
 			</View>
 		</View>
