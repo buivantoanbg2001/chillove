@@ -363,6 +363,8 @@ const styles = StyleSheet.create({
 		marginTop: 40,
 		marginBottom: 32,
 		borderRadius: 50,
+		width: '60%',
+		alignSelf: 'center',
 	},
 	headerText: {
 		color: Colors.grape_fruit,

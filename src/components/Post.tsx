@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import Colors from '../utils/Colors'
 import {useAppSelector} from '../hooks/redux.hook'
-import {CustomText} from '../utils/CustomComponents'
+import {Button, CustomText} from '../utils/CustomComponents'
 import PaginationDot from 'react-native-animated-pagination-dot'
 import * as Icon from '../utils/Icons'
 import FastImage from 'react-native-fast-image'
@@ -185,17 +185,26 @@ const PostButton = ({post, openComment, openMore}: PostButtonProps) => {
 	return (
 		<View style={styles.postButton}>
 			<View style={{flexDirection: 'row', alignItems: 'center'}}>
-				<TouchableOpacity style={{marginRight: 20}} onPress={openComment}>
-					<Icon.Ionicons
-						name="chatbubble-ellipses-outline"
-						size={28}
-						color={Colors.black}
-						style={{transform: [{scaleX: -1}]}}
-					/>
-				</TouchableOpacity>
-				<TouchableOpacity>
-					<Icon.Ionicons name="bookmarks-outline" size={28} color={Colors.black} />
-				</TouchableOpacity>
+				<Button
+					style={{marginRight: 14, padding: 0}}
+					icon={
+						<Icon.Ionicons
+							name="chatbubble-ellipses-outline"
+							size={28}
+							color={Colors.black}
+							style={{transform: [{scaleX: -1}]}}
+						/>
+					}
+					onPress={openComment}>
+					{post.comments.length > 0 && (
+						<CustomText style={styles.commentTotal}>{post.comments.length}</CustomText>
+					)}
+				</Button>
+
+				<Button
+					icon={<Icon.Ionicons name="bookmarks-outline" size={28} color={Colors.black} />}
+					style={{padding: 0}}
+				/>
 			</View>
 			<View style={{flexDirection: 'row', alignItems: 'center'}}>
 				{post.is_private && (
@@ -203,9 +212,11 @@ const PostButton = ({post, openComment, openMore}: PostButtonProps) => {
 						<Icon.Ionicons name="lock-closed" size={18} color={Colors.black} />
 					</View>
 				)}
-				<TouchableOpacity onPress={openMore}>
-					<Icon.Ionicons name="ellipsis-horizontal" size={24} color={Colors.black} />
-				</TouchableOpacity>
+				<Button
+					style={{padding: 0}}
+					icon={<Icon.Ionicons name="ellipsis-horizontal" size={24} color={Colors.black} />}
+					onPress={openMore}
+				/>
 			</View>
 		</View>
 	)
@@ -321,5 +332,18 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 		flexDirection: 'row',
 		flexWrap: 'wrap',
+	},
+	commentTotal: {
+		textAlign: 'center',
+		textAlignVertical: 'center',
+		position: 'relative',
+		minWidth: 18,
+		height: 18,
+		bottom: -10,
+		right: -1,
+		borderRadius: 5,
+		backgroundColor: Colors.grape_fruit_blur,
+		fontSize: 10,
+		paddingHorizontal: 4,
 	},
 })

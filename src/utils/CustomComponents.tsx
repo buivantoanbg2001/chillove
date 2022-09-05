@@ -83,7 +83,7 @@ const Button = ({title, titleStyle, icon, type, ...props}: ButtonProps) => {
 			{...props}
 			style={[
 				styles.defaultButton,
-				type === 'solid' ? styles.solidButton : type === 'none' ? null : styles.borderButton,
+				type === 'solid' ? styles.solidButton : type === 'border' ? styles.borderButton : null,
 				props.disabled ? {opacity: 0.2} : null,
 				props.style,
 			]}>
@@ -133,10 +133,8 @@ const styles = StyleSheet.create({
 	},
 	defaultButton: {
 		flexDirection: 'row',
-		alignSelf: 'center',
 		alignItems: 'center',
 		justifyContent: 'center',
-		minWidth: width * 0.6,
 		padding: 12,
 		borderRadius: 12,
 	},

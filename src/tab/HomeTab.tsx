@@ -317,9 +317,6 @@ const HomeTab: React.FC = () => {
 					<View style={styles.commentContainer}>
 						<View style={styles.commentHeader}>
 							<CustomText style={{fontSize: 22, fontFamily: 'Montserrat-600'}}>Comments</CustomText>
-							<TouchableOpacity>
-								<Icon.Ionicons name="ellipsis-horizontal" size={30} color={Colors.black} />
-							</TouchableOpacity>
 						</View>
 						{posts[indexCurrentPostComment] && (
 							<BottomSheetFlatList
@@ -358,9 +355,8 @@ const HomeTab: React.FC = () => {
 				onChange={index => setIndexMoreSheet(index)}>
 				<View style={styles.moreContainer}>
 					<Button
-						type="none"
 						icon={<Icon.AntDesign name="download" size={42} color={Colors.black} />}
-						style={{padding: 12, minWidth: 0}}
+						style={{padding: 12}}
 						disabled={
 							posts[indexCurrentPostMore] && posts[indexCurrentPostMore].images.length === 0
 						}

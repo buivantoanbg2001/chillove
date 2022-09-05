@@ -29,40 +29,42 @@ const LoveTab: React.FC = () => {
 		auth.currentUser ? user_item.email != auth.currentUser.email : 'linhngocbh2001@gmail.com',
 	)
 
-	if (user == null || user_lover == null || !isFocused) return <></>
-
 	return (
 		<SafeAreaView style={styles.container}>
 			<FastImage source={require('../assets/images/heart_fly.gif')} style={styles.background} />
 
-			<ScrollView style={{marginTop: 45}}>
-				<Animatable.Text
-					animation="pulse"
-					iterationCount="infinite"
-					duration={2000}
-					useNativeDriver={true}
-					style={styles.title}>
-					Two pandas have been the couple for...
-				</Animatable.Text>
+			{user && user_lover && isFocused && (
+				<ScrollView style={{marginTop: 45}}>
+					<Animatable.View animation="fadeIn" useNativeDriver={true}>
+						<Animatable.Text
+							animation="pulse"
+							iterationCount="infinite"
+							duration={2000}
+							useNativeDriver={true}
+							style={styles.title}>
+							Two pandas have been the couple for...
+						</Animatable.Text>
 
-				<LoveTime />
+						<LoveTime />
 
-				<View style={styles.infoWrapper}>
-					<InfoUser user={user} />
-					<FastImage
-						source={require('../assets/images/love_line.gif')}
-						style={{width: 110, height: 90}}
-						resizeMode={FastImage.resizeMode.contain}
-					/>
-					<InfoUser user={user_lover} />
-				</View>
+						<View style={styles.infoWrapper}>
+							<InfoUser user={user} />
+							<FastImage
+								source={require('../assets/images/love_line.gif')}
+								style={{width: 110, height: 90}}
+								resizeMode={FastImage.resizeMode.contain}
+							/>
+							<InfoUser user={user_lover} />
+						</View>
 
-				<FastImage
-					source={require('../assets/images/couple.gif')}
-					style={{width: 170, height: 150, alignSelf: 'center'}}
-					resizeMode={FastImage.resizeMode.contain}
-				/>
-			</ScrollView>
+						<FastImage
+							source={require('../assets/images/couple.gif')}
+							style={{width: 170, height: 150, alignSelf: 'center'}}
+							resizeMode={FastImage.resizeMode.contain}
+						/>
+					</Animatable.View>
+				</ScrollView>
+			)}
 		</SafeAreaView>
 	)
 }

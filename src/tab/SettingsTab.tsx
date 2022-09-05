@@ -11,8 +11,12 @@ const SettingsTab = () => {
 
 	return (
 		<View style={styles.container}>
-			<Text>SettingsTab</Text>
-			<Button type="solid" title="Sign out" onPress={handleSignout} />
+			<Button
+				type="solid"
+				title="Sign out"
+				onPress={handleSignout}
+				style={{width: '60%', alignSelf: 'center'}}
+			/>
 		</View>
 	)
 }
@@ -21,6 +25,6 @@ export default SettingsTab
 
 const styles = StyleSheet.create({
 	container: {
-		marginTop: 50,
+		marginTop: 100,
 	},
 })
