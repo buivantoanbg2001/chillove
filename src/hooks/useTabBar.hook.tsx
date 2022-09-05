@@ -38,7 +38,7 @@ const useTabBar = () => {
 	)
 
 	return useMemo(
-		() => ({hideTabBarStyle: hideTabBar, showTabBarStyle: showTabBar, setTabBarStyle}),
+		() => ({hideTabBar, showTabBar, setTabBarStyle}),
 		[hideTabBar, showTabBar, setTabBarStyle],
 	)
 }

@@ -65,7 +65,7 @@ const HomeTab: React.FC = () => {
 	const navigation = useNavigation<StackNavigationProp<any>>()
 	const isKeyboardVisible = useKeyboard()
 	const {addToast} = useToast()
-	const {showTabBarStyle, hideTabBarStyle} = useTabBar()
+	const {showTabBar, hideTabBar} = useTabBar()
 
 	const getData = () => {
 		setIsLoadingMore(true)
@@ -167,7 +167,7 @@ const HomeTab: React.FC = () => {
 	}, [])
 
 	const openComment = useCallback((index: number) => {
-		hideTabBarStyle()
+		hideTabBar()
 
 		if (commentSheetRef.current) {
 			commentSheetRef.current.snapToIndex(0)
@@ -210,7 +210,7 @@ const HomeTab: React.FC = () => {
 	}
 
 	const openMore = useCallback((index: number) => {
-		hideTabBarStyle()
+		hideTabBar()
 
 		if (moreSheetRef.current) {
 			moreSheetRef.current.snapToIndex(0)
@@ -225,7 +225,7 @@ const HomeTab: React.FC = () => {
 	 */
 	const onAnimate = useCallback((_: number, toIndex: number) => {
 		if (toIndex === -1) {
-			showTabBarStyle()
+			showTabBar()
 			setIndexCurrentPostComment(-1)
 			setIndexCurrentPostMore(-1)
 		}
