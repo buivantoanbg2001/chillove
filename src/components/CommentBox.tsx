@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
 	addButton: {
 		width: 32,
 		height: 32,
+		minWidth: 0,
 		marginLeft: 16,
 		borderRadius: 16,
 		padding: 0,
